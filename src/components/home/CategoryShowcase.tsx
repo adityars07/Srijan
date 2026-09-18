@@ -15,7 +15,7 @@ export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ onSelectCate
     {
       name: 'Crochet & Blooms',
       category: 'Crochet',
-      image: '/images/crochet_bouquet.jpg',
+      image: '/images/crochet-artisan-floral-bouquet.jpg',
     },
     {
       name: 'Resin Keepsakes',

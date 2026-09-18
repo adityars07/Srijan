@@ -124,11 +124,11 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
             <div
               className="hero-image-tile"
               style={{ height: '320px' }}
-              onClick={() => onSelectProductById('crochet-rose-bouquet')}
+              onClick={() => onSelectProductById('crochet-artisan-floral-bouquet')}
             >
               <img
-                src="/images/crochet_bouquet.jpg"
-                alt="Crochet Rose Bouquet Handcrafted"
+                src="/images/crochet-artisan-floral-bouquet.jpg"
+                alt="Handcrafted Crochet Floral Bouquet"
               />
               <span
                 className="hero-tile-pill"
