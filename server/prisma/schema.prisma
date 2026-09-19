@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  phone        String?
+  role         String    @default("CUSTOMER") // CUSTOMER, ADMIN
+  addresses    Address[]
+  orders       Order[]
+  reviews      Review[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Address {
+  id         String   @id @default(uuid())
+  userId     String
+  street     String
+  apartment  String?
+  city       String
+  state      String?
+  postalCode String
+  country    String   @default("India")
+  isDefault  Boolean  @default(false)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}
+
+model Product {
+  id               String         @id @default(uuid())
+  slug             String         @unique
+  name             String
+  category         String         // Crochet, Resin Art, Name Plates, Ceramics & Mugs, Plates & Bowls, Home Decor
+  collection       String         // Boho Blooms, Heritage Resin, Earth & Clay, Minimalist Stoneware, Signature Srijan
+  priceINR         Float
+  priceUSD         Float
+  originalPriceINR Float?
+  originalPriceUSD Float?
+  rating           Float          @default(5.0)
+  reviewCount      Int            @default(0)
+  description      String
+  storySnippet     String?
+  material         String
+  inStock          Boolean        @default(true)
+  stockQuantity    Int            @default(25)
+  sku              String         @unique
+  dimensions       String?
+  careInstructions String
+  deliveryInfo     String
+  isTrending       Boolean        @default(false)
+  isFeatured       Boolean        @default(false)
+  badge            String?
+  images           ProductImage[]
+  colors           ProductColor[]
+  sizes            ProductSize[]
+  orderItems       OrderItem[]
+  reviews          Review[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  productId String
+  url       String
+  isPrimary Boolean  @default(false)
+  order     Int      @default(0)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductColor {
+  id        String   @id @default(uuid())
+  productId String
+  name      String
+  hex       String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductSize {
+  id        String   @id @default(uuid())
+  productId String
+  sizeName  String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  orderNumber     String      @unique // e.g. SRJ-2026-1042
+  userId          String?
+  guestEmail      String?
+  guestName       String?
+  guestPhone      String?
+  subtotal        Float
+  discountAmount  Float       @default(0)
+  shippingCost    Float       @default(0)
+  totalAmount     Float
+  currency        String      @default("INR") // INR, USD
+  status          String      @default("CONFIRMED") // PENDING, CONFIRMED, IN_CRAFTING, DISPATCHED, DELIVERED, CANCELLED
+  paymentMethod   String      @default("UPI") // CARD, UPI, COD, BANK
+  paymentStatus   String      @default("PAID") // PENDING, PAID, FAILED
+  shippingAddress String      // JSON string of address details
+  trackingNumber  String?     // e.g. DTDC-9872134
+  estimatedDelivery String?
+  notes           String?
+  items           OrderItem[]
+  user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id           String   @id @default(uuid())
+  orderId      String
+  productId    String?
+  productName  String
+  productImage String
+  colorName    String?
+  sizeName     String?
+  unitPrice    Float
+  quantity     Int
+  totalPrice   Float
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+}
+
+model CustomCommission {
+  id              String   @id @default(uuid())
+  name            String
+  email           String
+  phone           String
+  category        String   // Resin Art, Name Plates, Crochet, Other
+  occasion        String?  // Wedding, Anniversary, Housewarming, Birthday, Corporate
+  budgetRange     String?
+  description     String
+  referenceImages String?  // JSON array of image URLs
+  status          String   @default("INQUIRY_RECEIVED") // INQUIRY_RECEIVED, REVIEWING, QUOTE_SENT, IN_CRAFTING, COMPLETED
+  quoteAmountINR  Float?
+  quoteAmountUSD  Float?
+  adminNotes      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Review {
+  id             String   @id @default(uuid())
+  productId      String
+  userId         String?
+  authorName     String
+  authorLocation String?
+  rating         Int      @default(5)
+  comment        String
+  isApproved     Boolean  @default(true)
+  isFeatured     Boolean  @default(false)
+  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt      DateTime @default(now())
+}
+
+model Coupon {
+  id            String    @id @default(uuid())
+  code          String    @unique // e.g. SRIJAN10
+  discountType  String    @default("PERCENTAGE") // PERCENTAGE, FIXED
+  discountValue Float     // e.g. 10 (%) or 500 (INR)
+  minOrderValue Float?    // e.g. 1500
+  maxDiscount   Float?    // e.g. 1000
+  expiresAt     DateTime?
+  usageLimit    Int?
+  usageCount    Int       @default(0)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+}
+
+model ContactMessage {
+  id          String   @id @default(uuid())
+  name        String
+  email       String
+  phone       String?
+  message     String
+  isRead      Boolean  @default(false)
+  replyStatus String   @default("PENDING") // PENDING, REPLIED
+  createdAt   DateTime @default(now())
+}

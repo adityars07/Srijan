@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { AuthProvider } from './context/AuthContext';
 import { CurrencyProvider } from './context/CurrencyContext';
 import { CartProvider } from './context/CartContext';
-import { Header } from './components/layout/Header';
+import { Header, type AppView } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { SearchModal } from './components/layout/SearchModal';
 import { HeroCollage } from './components/home/HeroCollage';
@@ -18,15 +19,39 @@ import { CartDrawer } from './components/cart/CartDrawer';
 import { CheckoutView } from './components/checkout/CheckoutView';
 import { AboutView } from './components/about/AboutView';
 import { ContactModal } from './components/contact/ContactModal';
+import { AuthModal } from './components/auth/AuthModal';
+import { CustomCommissionModal } from './components/custom/CustomCommissionModal';
+import { OrderTrackingView } from './components/order/OrderTrackingView';
+import { AdminDashboardView } from './components/admin/AdminDashboardView';
 import { Toast } from './components/ui/Toast';
 import { PRODUCTS, REVIEWS } from './data/mockData';
+import { api } from './services/api';
 import type { Product, FilterState } from './types';
 
 export function AppContent() {
-  const [currentView, setCurrentView] = useState<'home' | 'shop' | 'about' | 'checkout'>('home');
+  const [currentView, setCurrentView] = useState<AppView>('home');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isCommissionOpen, setIsCommissionOpen] = useState(false);
+  const [trackingOrderNumber, setTrackingOrderNumber] = useState<string>('SRJ-2026-1001');
+
+  // Live products state populated from backend database
+  const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
+
+  useEffect(() => {
+    // Fetch live products from backend database
+    api.products.getAll()
+      .then((res) => {
+        if (res.products && res.products.length > 0) {
+          setProductsList(res.products as Product[]);
+        }
+      })
+      .catch((err) => {
+        console.warn('Backend live products fetch fallback to catalog:', err.message);
+      });
+  }, [currentView]);
 
   // Shop filter state
   const [filters, setFilters] = useState<FilterState>({
@@ -38,7 +63,7 @@ export function AppContent() {
     searchQuery: '',
   });
 
-  const handleNavigate = (view: 'home' | 'shop' | 'about' | 'checkout', category?: string) => {
+  const handleNavigate = (view: AppView, category?: string) => {
     setCurrentView(view);
     if (category) {
       setFilters((prev) => ({
@@ -61,7 +86,7 @@ export function AppContent() {
   };
 
   const handleSelectProductById = (id: string) => {
-    const found = PRODUCTS.find((p) => p.id === id);
+    const found = productsList.find((p) => p.id === id || (p as any).slug === id);
     if (found) setSelectedProduct(found);
   };
 
@@ -82,6 +107,8 @@ export function AppContent() {
         onNavigate={handleNavigate}
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenContact={() => setIsContactOpen(true)}
+        onOpenAuth={() => setIsAuthOpen(true)}
+        onOpenCommission={() => setIsCommissionOpen(true)}
       />
 
       <main>
@@ -99,7 +126,7 @@ export function AppContent() {
             />
 
             <TrendingSection
-              products={PRODUCTS}
+              products={productsList}
               onSelectProduct={setSelectedProduct}
               onSeeAllClick={() => handleNavigate('shop')}
             />
@@ -124,7 +151,7 @@ export function AppContent() {
 
         {currentView === 'shop' && (
           <ShopCatalogView
-            products={PRODUCTS}
+            products={productsList}
             filters={filters}
             onFilterChange={setFilters}
             onSelectProduct={setSelectedProduct}
@@ -141,8 +168,25 @@ export function AppContent() {
 
         {currentView === 'checkout' && (
           <CheckoutView
-            onOrderSuccess={() => handleNavigate('home')}
+            onOrderSuccess={() => {}}
             onNavigateHome={() => handleNavigate('home')}
+            onNavigateTracking={(orderNum) => {
+              setTrackingOrderNumber(orderNum);
+              handleNavigate('tracking');
+            }}
+          />
+        )}
+
+        {currentView === 'tracking' && (
+          <OrderTrackingView
+            initialOrderNumber={trackingOrderNumber}
+            onBackToShopping={() => handleNavigate('shop')}
+          />
+        )}
+
+        {currentView === 'admin' && (
+          <AdminDashboardView
+            onBackToStore={() => handleNavigate('home')}
           />
         )}
       </main>
@@ -179,6 +223,19 @@ export function AppContent() {
         onClose={() => setIsContactOpen(false)}
       />
 
+      {/* Customer / Admin Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onSuccess={() => {}}
+      />
+
+      {/* Bespoke Custom Creation Inquiry Modal */}
+      <CustomCommissionModal
+        isOpen={isCommissionOpen}
+        onClose={() => setIsCommissionOpen(false)}
+      />
+
       {/* Live Toast Alerts */}
       <Toast />
     </div>
@@ -187,10 +244,12 @@ export function AppContent() {
 
 export default function App() {
   return (
-    <CurrencyProvider>
-      <CartProvider>
-        <AppContent />
-      </CartProvider>
-    </CurrencyProvider>
+    <AuthProvider>
+      <CurrencyProvider>
+        <CartProvider>
+          <AppContent />
+        </CartProvider>
+      </CurrencyProvider>
+    </AuthProvider>
   );
 }

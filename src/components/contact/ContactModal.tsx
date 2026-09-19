@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Mail, Phone, MapPin, Send, CheckCircle2 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { api } from '../../services/api';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -14,21 +15,30 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    showToast('Your message has been sent directly to Rakhi!');
-    setTimeout(() => {
-      setSubmitted(false);
-      setName('');
-      setEmail('');
-      setPhone('');
-      setMessage('');
-      onClose();
-    }, 2000);
+    setIsSubmitting(true);
+    try {
+      await api.contact.submit({ name, email, phone, message });
+      setSubmitted(true);
+      showToast('Your message has been sent directly to Rakhi!');
+      setTimeout(() => {
+        setSubmitted(false);
+        setName('');
+        setEmail('');
+        setPhone('');
+        setMessage('');
+        onClose();
+      }, 2000);
+    } catch (err: any) {
+      showToast(err.message || 'Failed to send message', 'info');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -173,11 +183,12 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
 
                 <button
                   type="submit"
+                  disabled={isSubmitting}
                   className="checkout-action-btn"
-                  style={{ marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  style={{ marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', opacity: isSubmitting ? 0.7 : 1 }}
                 >
                   <Send size={16} />
-                  <span>Send Message</span>
+                  <span>{isSubmitting ? 'Sending...' : 'Send Message'}</span>
                 </button>
               </form>
             )}

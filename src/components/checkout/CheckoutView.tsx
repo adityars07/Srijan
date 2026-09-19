@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { ChevronRight, ShieldCheck, CheckCircle2, CreditCard, Smartphone, Building2 } from 'lucide-react';
+import { ChevronRight, ShieldCheck, CheckCircle2, CreditCard, Smartphone, Building2, Truck } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useCurrency } from '../../context/CurrencyContext';
+import { api } from '../../services/api';
 
 interface CheckoutViewProps {
   onOrderSuccess: () => void;
   onNavigateHome: () => void;
+  onNavigateTracking?: (orderNumber: string) => void;
 }
 
 export const CheckoutView: React.FC<CheckoutViewProps> = ({
   onOrderSuccess,
   onNavigateHome,
+  onNavigateTracking,
 }) => {
   const {
     cart,
@@ -38,6 +41,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
   const [couponCode, setCouponCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
+  const [createdOrder, setCreatedOrder] = useState<any | null>(null);
 
   // Subtotal calculations
   const subtotalRaw = cart.reduce((sum, item) => {
@@ -56,27 +60,71 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
 
   const totalAmount = Math.max(0, subtotalRaw - discountAmount + shippingCost);
 
-  const handleApplyCoupon = (e: React.FormEvent) => {
+  const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     if (couponCode.trim()) {
-      applyPromoCode(couponCode);
-      setCouponCode('');
+      try {
+        const res = await api.coupons.validate(couponCode.trim(), subtotalRaw);
+        applyPromoCode(couponCode.trim());
+        showToast(`Promo code ${res.coupon.code} applied successfully!`);
+        setCouponCode('');
+      } catch (err: any) {
+        showToast(err.message || 'Invalid promo code', 'info');
+      }
     }
   };
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
+  const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (cart.length === 0) {
+      showToast('Your cart is empty', 'info');
+      return;
+    }
+
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const orderPayload = {
+        items: cart.map((item) => ({
+          productId: item.product.id,
+          productName: item.product.name,
+          productImage: item.product.images?.[0] || '/images/crochet-artisan-floral-bouquet.jpg',
+          colorName: item.selectedColor?.name || null,
+          sizeName: item.selectedSize || 'Standard',
+          unitPrice: currency === 'INR' ? item.product.priceINR : item.product.priceUSD,
+          quantity: item.quantity,
+        })),
+        shippingAddress: {
+          firstName,
+          lastName,
+          street: address,
+          apartment,
+          city,
+          postalCode,
+          country,
+          phone,
+          email,
+        },
+        currency,
+        shippingMethod,
+        paymentMethod: paymentMethod.toUpperCase(),
+        couponCode: promoCode || null,
+        guestInfo: { name: `${firstName} ${lastName}`.trim(), email, phone },
+      };
+
+      const res = await api.orders.create(orderPayload);
+      setCreatedOrder(res.order);
       setOrderComplete(true);
       clearCart();
-      showToast('Order confirmed! An email has been sent with your tracking info.');
+      showToast(`Order #${res.order.orderNumber} confirmed & saved in studio database!`);
       onOrderSuccess();
-    }, 1200);
+    } catch (err: any) {
+      showToast(err.message || 'Failed to place order. Please try again.', 'info');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  if (orderComplete) {
+  if (orderComplete && createdOrder) {
     return (
       <div className="container" style={{ padding: '80px 0', textAlign: 'center', maxWidth: '640px' }}>
         <div
@@ -98,18 +146,56 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
           Thank You, {firstName}!
         </h2>
         <p style={{ color: '#746D66', fontSize: '1.05rem', lineHeight: 1.6, marginBottom: '24px' }}>
-          Your order has been received by Rakhi at the Srijan studio. A confirmation receipt with custom crafting updates has been sent to <strong>{email}</strong>.
+          Your order has been recorded in Rakhi’s studio crafting ledger. A receipt with tracking updates has been dispatched to <strong>{email}</strong>.
         </p>
 
-        <div style={{ background: '#F4EFEA', padding: '20px', borderRadius: '16px', marginBottom: '32px', textAlign: 'left' }}>
-          <div style={{ fontSize: '0.85rem', color: '#746D66', marginBottom: '6px' }}>Order Reference: <strong>#SRJ-{Math.floor(100000 + Math.random() * 900000)}</strong></div>
-          <div style={{ fontSize: '0.85rem', color: '#746D66', marginBottom: '6px' }}>Estimated Delivery: <strong>3-5 Business Days</strong></div>
-          <div style={{ fontSize: '0.85rem', color: '#746D66' }}>Shipping Address: <strong>{address}, {city}, {postalCode}</strong></div>
+        <div style={{ background: '#FAF7F2', padding: '24px', borderRadius: '16px', marginBottom: '32px', textAlign: 'left', border: '1px solid #EBE4DA' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', borderBottom: '1px solid #EBE4DA', paddingBottom: '8px' }}>
+            <span style={{ fontSize: '0.86rem', color: '#746D66' }}>Order Reference:</span>
+            <strong style={{ fontSize: '1.05rem', color: '#2B2523', fontFamily: 'var(--font-serif)' }}>#{createdOrder.orderNumber}</strong>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.85rem', color: '#746D66' }}>Courier Tracking:</span>
+            <strong style={{ fontSize: '0.88rem', color: '#C48B71', fontFamily: 'monospace' }}>{createdOrder.trackingNumber || 'Pending Dispatch'}</strong>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.85rem', color: '#746D66' }}>Payment Method:</span>
+            <strong style={{ fontSize: '0.88rem', color: '#2B2523', textTransform: 'uppercase' }}>{createdOrder.paymentMethod}</strong>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.85rem', color: '#746D66' }}>Delivery Address:</span>
+            <span style={{ fontSize: '0.85rem', color: '#2B2523', textAlign: 'right' }}>{address}, {city}</span>
+          </div>
         </div>
 
-        <button className="see-all-link" onClick={onNavigateHome} style={{ backgroundColor: '#2B2523', color: 'white' }}>
-          Return to Studio Home
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
+          {onNavigateTracking && (
+            <button
+              className="see-all-link"
+              onClick={() => onNavigateTracking(createdOrder.orderNumber)}
+              style={{ backgroundColor: '#2B2523', color: '#FBF9F5', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <Truck size={16} />
+              <span>Track Live Crafting Status</span>
+            </button>
+          )}
+
+          <button
+            onClick={onNavigateHome}
+            style={{
+              padding: '12px 24px',
+              borderRadius: '9999px',
+              border: '1px solid #EBE4DA',
+              backgroundColor: '#F4EFEA',
+              color: '#2B2523',
+              fontWeight: 600,
+              fontSize: '0.88rem',
+              cursor: 'pointer',
+            }}
+          >
+            Return to Studio Home
+          </button>
+        </div>
       </div>
     );
   }
