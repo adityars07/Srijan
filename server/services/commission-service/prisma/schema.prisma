@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model CustomCommission {
+  id              String   @id @default(uuid())
+  name            String
+  email           String
+  phone           String?
+  category        String   // Resin Art, Crochet, Name Plates, Ceramic, Other
+  occasion        String?
+  budgetRange     String?
+  description     String
+  referenceImages String?  // JSON string array of URLs
+  status          String   @default("PENDING") // PENDING, UNDER_REVIEW, QUOTE_SENT, APPROVED, IN_PROGRESS, COMPLETED, REJECTED
+  quoteAmountINR  Float?
+  quoteAmountUSD  Float?
+  adminNotes      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        String    @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  isRead    Boolean   @default(false)
+  repliedAt DateTime?
+  createdAt DateTime  @default(now())
+}

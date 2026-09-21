@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  orderNumber     String      @unique
+  userId          String?
+  guestName       String?
+  guestEmail      String?
+  guestPhone      String?
+  subtotal        Float
+  discountAmount  Float       @default(0)
+  shippingCost    Float       @default(0)
+  totalAmount     Float
+  currency        String      @default("INR")
+  status          String      @default("CONFIRMED") // CONFIRMED, IN_CRAFTING, DISPATCHED, DELIVERED, CANCELLED
+  paymentMethod   String      @default("UPI")       // CARD, UPI, NETBANKING, COD
+  paymentStatus   String      @default("PAID")      // PENDING, PAID, FAILED, REFUNDED
+  shippingAddress String                            // JSON string of address details
+  trackingNumber  String?
+  notes           String?
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id           String  @id @default(uuid())
+  orderId      String
+  productId    String
+  productName  String
+  productImage String?
+  colorName    String?
+  sizeName     String?
+  unitPrice    Float
+  quantity     Int     @default(1)
+  totalPrice   Float
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Coupon {
+  id            String    @id @default(uuid())
+  code          String    @unique
+  discountType  String    @default("PERCENTAGE") // PERCENTAGE, FIXED
+  discountValue Float
+  minOrderValue Float?    @default(0)
+  maxDiscount   Float?
+  isActive      Boolean   @default(true)
+  usageCount    Int       @default(0)
+  maxUsage      Int?
+  expiresAt     DateTime?
+  createdAt     DateTime  @default(now())
+}

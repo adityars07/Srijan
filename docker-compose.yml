@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # 1. Authentication Service
+  auth-service:
+    build:
+      context: ./server/services/auth-service
+      dockerfile: Dockerfile
+    container_name: srijan-auth-service
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - DATABASE_URL=file:./auth.db
+      - JWT_SECRET=srijan_artisan_secret_key_2026_super_secure_jwt
+    volumes:
+      - auth-db-data:/app/prisma
+
+  # 2. Product & Review Service
+  product-service:
+    build:
+      context: ./server/services/product-service
+      dockerfile: Dockerfile
+    container_name: srijan-product-service
+    ports:
+      - "5002:5002"
+    environment:
+      - PORT=5002
+      - DATABASE_URL=file:./products.db
+    volumes:
+      - product-db-data:/app/prisma
+
+  # 3. Order & Coupon Service
+  order-service:
+    build:
+      context: ./server/services/order-service
+      dockerfile: Dockerfile
+    container_name: srijan-order-service
+    ports:
+      - "5003:5003"
+    environment:
+      - PORT=5003
+      - DATABASE_URL=file:./orders.db
+      - PRODUCT_SERVICE_URL=http://product-service:5002
+      - JWT_SECRET=srijan_artisan_secret_key_2026_super_secure_jwt
+    depends_on:
+      - product-service
+    volumes:
+      - order-db-data:/app/prisma
+
+  # 4. Commission & Contact Service
+  commission-service:
+    build:
+      context: ./server/services/commission-service
+      dockerfile: Dockerfile
+    container_name: srijan-commission-service
+    ports:
+      - "5004:5004"
+    environment:
+      - PORT=5004
+      - DATABASE_URL=file:./commissions.db
+    volumes:
+      - commission-db-data:/app/prisma
+
+  # 5. API Gateway
+  api-gateway:
+    build:
+      context: ./server/gateway
+      dockerfile: Dockerfile
+    container_name: srijan-api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - AUTH_SERVICE_URL=http://auth-service:5001
+      - PRODUCT_SERVICE_URL=http://product-service:5002
+      - ORDER_SERVICE_URL=http://order-service:5003
+      - COMMISSION_SERVICE_URL=http://commission-service:5004
+    depends_on:
+      - auth-service
+      - product-service
+      - order-service
+      - commission-service
+
+volumes:
+  auth-db-data:
+  product-db-data:
+  order-db-data:
+  commission-db-data:

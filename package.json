@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "dev:server": "npm --prefix server run dev",
+    "dev:services": "npx concurrently -n \"GATEWAY,AUTH,PRODUCT,ORDER,COMMISSION,FRONTEND\" -c \"magenta,blue,green,yellow,cyan,white\" \"npm --prefix server/gateway run dev\" \"npm --prefix server/services/auth-service run dev\" \"npm --prefix server/services/product-service run dev\" \"npm --prefix server/services/order-service run dev\" \"npm --prefix server/services/commission-service run dev\" \"npm run dev\"",
+    "services:push": "npm --prefix server/services/auth-service run db:push && npm --prefix server/services/product-service run db:push && npm --prefix server/services/order-service run db:push && npm --prefix server/services/commission-service run db:push",
+    "services:seed": "npm --prefix server/services/auth-service run db:seed && npm --prefix server/services/product-service run db:seed && npm --prefix server/services/order-service run db:seed && npm --prefix server/services/commission-service run db:seed",
     "db:seed": "npm --prefix server run db:seed",
     "db:studio": "npm --prefix server run db:studio",
     "build": "tsc -b && vite build",
