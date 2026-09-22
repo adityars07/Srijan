@@ -429,10 +429,10 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
               <DollarSign size={18} />
             </div>
             <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 700, color: '#2B2523' }}>
-              {formatPrice(metrics.totalRevenueINR)}
+              {formatPrice(metrics.totalRevenueINR ?? metrics.totalRevenue ?? 0)}
             </div>
             <div style={{ fontSize: '0.76rem', color: '#746D66', marginTop: '4px' }}>
-              ${metrics.totalRevenueUSD} USD total revenue
+              ${metrics.totalRevenueUSD ?? Math.round((metrics.totalRevenue || 0) / 83)} USD total revenue
             </div>
           </div>
 
@@ -442,10 +442,10 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
               <Package size={18} />
             </div>
             <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 700, color: '#2B2523' }}>
-              {metrics.totalOrders}
+              {metrics.totalOrders || 0}
             </div>
             <div style={{ fontSize: '0.76rem', color: '#746D66', marginTop: '4px' }}>
-              {metrics.orderStatusCounts.IN_CRAFTING || 0} in active crafting
+              {metrics.orderStatusCounts?.IN_CRAFTING ?? metrics.pendingOrders ?? 0} in active crafting
             </div>
           </div>
 
@@ -455,7 +455,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
               <HeartHandshake size={18} />
             </div>
             <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 700, color: '#2B2523' }}>
-              {metrics.pendingCustomRequests}
+              {metrics.pendingCustomRequests ?? metrics.pendingCommissions ?? 0}
             </div>
             <div style={{ fontSize: '0.76rem', color: '#746D66', marginTop: '4px' }}>
               Awaiting quote or crafting
@@ -468,7 +468,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
               <AlertTriangle size={18} />
             </div>
             <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 700, color: '#2B2523' }}>
-              {metrics.lowStockCount}
+              {metrics.lowStockCount ?? metrics.outOfStock ?? 0}
             </div>
             <div style={{ fontSize: '0.76rem', color: '#746D66', marginTop: '4px' }}>
               Handmade items under 15 units
