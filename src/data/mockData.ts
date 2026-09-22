@@ -14,7 +14,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 42,
     images: [
       '/images/crochet-artisan-floral-bouquet.jpg',
-      '/images/crochet-artisan-floral-bouquet.jpg',
+      '/images/crochet-potted-sunflowers.jpg',
     ],
     description: 'An everlasting artisanal bouquet meticulously hand-crocheted with premium milk cotton yarn. Features vibrant blooming sunflowers, white daisies, lavender sprigs, rose buds, and eucalyptus foliage, elegantly wrapped in artisan kraft paper and tied with a satin ribbon.',
     storySnippet: 'Hand-looped stitch by stitch by Rakhi over 12 hours of dedicated artisanal craft.',
@@ -48,7 +48,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 36,
     images: [
       '/images/crochet-sunflower-tote-crossbody.jpg',
-      '/images/crochet-sunflower-tote-crossbody.jpg',
+      '/images/crochet-artisan-floral-bouquet.jpg',
     ],
     description: 'Bohemian heirloom statement bag handcrafted from individual crocheted sunflower granny squares with a rich chocolate and oatmeal frame. Features sturdy braided handles, an adjustable crossbody shoulder strap, and an accompanying mini zipper coin charm.',
     storySnippet: 'Each square is individually hand-joined, creating a durable yet supple textile structure.',
@@ -82,7 +82,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 28,
     images: [
       '/images/crochet-mandala-dreamcatcher-lavender.jpg',
-      '/images/crochet-mandala-dreamcatcher-lavender.jpg',
+      '/images/crochet-mandala-dreamcatcher-emerald.jpg',
     ],
     description: 'A mesmerizing circular wall art dreamcatcher inspired by sacred geometry. Hand-knotted with delicate lilac, lavender, and periwinkle yarns stretched across an embroidered hoop, adorned with hand-crocheted feathers, hanging leaves, and lustrous pearl beads.',
     storySnippet: 'Brings peaceful energy, calm vibrations, and whimsical texture to bedrooms and creative studios.',
@@ -116,7 +116,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 24,
     images: [
       '/images/crochet-mandala-dreamcatcher-emerald.jpg',
-      '/images/crochet-mandala-dreamcatcher-emerald.jpg',
+      '/images/crochet-mandala-dreamcatcher-lavender.jpg',
     ],
     description: 'Rich jewel-toned wall tapestry dreamcatcher crafted with concentric mandala loops in deep forest emerald, jade, and mint greens. Accented with natural wooden beads and hand-crocheted trailing leaf pennants.',
     storySnippet: 'Inspired by the sacred evergreen groves of the Nilgiri hills.',
@@ -150,7 +150,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 39,
     images: [
       '/images/crochet-potted-sunflowers.jpg',
-      '/images/crochet-potted-sunflowers.jpg',
+      '/images/crochet-sunflower-car-hanging.jpg',
     ],
     description: 'Perpetual sunshine for your study table or bookshelf. Pair of lovingly hand-knitted miniature sunflower blooms emerging from realistic textured brown soil in soft terracotta-tone crochet pots with bendable wired green stems.',
     storySnippet: 'No watering required, ever-blooming warmth that sparks instant joy.',
@@ -183,7 +183,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 31,
     images: [
       '/images/crochet-evil-eye-flower-stems.jpg',
-      '/images/crochet-evil-eye-flower-stems.jpg',
+      '/images/crochet-artisan-floral-bouquet.jpg',
     ],
     description: 'A harmonious blend of cultural protection and botanical artistry. Features vibrant blue, turquoise, white, and black evil eye concentric centers blossoming into sculpted sunflower and daisy petals on sturdy display stems.',
     storySnippet: 'Designed to ward off negative vibrations while elevating your entry foyer or living space.',
@@ -216,7 +216,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 27,
     images: [
       '/images/crochet-eyewear-sleeve-case.jpg',
-      '/images/crochet-eyewear-sleeve-case.jpg',
+      '/images/crochet-purple-drawstring-pouch.jpg',
     ],
     description: 'Keep your spectacles and sunglasses scratch-free in style. Meticulously crocheted using thick cushion-stitch ribbing in soft lilac and ivory tones, fastened with a handcrafted engraved wooden toggle button and loop closure.',
     storySnippet: 'Soft, cushioned, shock-absorbing protection that slips smoothly into any handbag or pocket.',
@@ -250,7 +250,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 22,
     images: [
       '/images/crochet-purple-drawstring-pouch.jpg',
-      '/images/crochet-purple-drawstring-pouch.jpg',
+      '/images/crochet-eyewear-sleeve-case.jpg',
     ],
     description: 'An elegant vintage-inspired drawstring bucket pouch in dual-tone violet and lilac. Features an intricate wave shell stitch pattern, reinforced circular base, and woven drawstring cords finished with dainty crochet flower beads.',
     storySnippet: 'Perfect for festive occasions, carrying cosmetics, coins, jewelry, or essential treasures.',
@@ -283,7 +283,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 45,
     images: [
       '/images/crochet-ruffled-scrunchies-set.jpg',
-      '/images/crochet-ruffled-scrunchies-set.jpg',
+      '/images/crochet-daisy-keychains-pair.jpg',
     ],
     description: 'Treat your hair to ultimate gentle care. Set of 3 voluptuous ruffled scrunchies crocheted around strong, snag-free elastic bands in curated pastel hues: Cloud White, Petal Blush, and Warm Nude.',
     storySnippet: 'Eliminates hair creasing and breakage while making high ponytails and messy buns look effortlessly chic.',
@@ -316,7 +316,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 33,
     images: [
       '/images/crochet-flower-basket-magnet.jpg',
-      '/images/crochet-flower-basket-magnet.jpg',
+      '/images/crochet-potted-sunflowers.jpg',
     ],
     description: 'An irresistible miniature woven basket overflowing with hand-stitched micro roses, daisies, and foliage. Fitted with a heavy-duty neodymium magnet on the back that clings firmly to refrigerators, magnet boards, or steel workstations.',
     storySnippet: 'Spreads sunshine and artisanal warmth across everyday kitchen spaces.',
@@ -349,7 +349,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 29,
     images: [
       '/images/crochet-daisy-keychains-pair.jpg',
-      '/images/crochet-daisy-keychains-pair.jpg',
+      '/images/crochet-flower-basket-magnet.jpg',
     ],
     description: 'Set of two cheerful floral keychains featuring hand-knitted 3D daisies and tulips with dangling wooden beads and sturdy metallic lobster clasps. Easily attaches to car keys, backpacks, or tote handles.',
     storySnippet: 'A delightful companion piece for everyday keys and accessories.',
@@ -382,7 +382,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 18,
     images: [
       '/images/crochet-eyeglass-bow-charms.jpg',
-      '/images/crochet-eyeglass-bow-charms.jpg',
+      '/images/crochet-ruffled-scrunchies-set.jpg',
     ],
     description: 'Delicate hand-looped pastel bows and floral accents designed to clip onto glasses chains, pouch zippers, headphone cases, or bag straps for an instant coquettish artisanal touch.',
     storySnippet: 'Handcrafted in Rakhi’s studio with fine lace-weight yarn.',
@@ -414,7 +414,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 34,
     images: [
       '/images/crochet-sunflower-car-hanging.jpg',
-      '/images/crochet-sunflower-car-hanging.jpg',
+      '/images/crochet-potted-sunflowers.jpg',
     ],
     description: 'Brighten every morning drive. Handcrafted double-sided blooming sunflower charm suspended by braided macrame cord with leafy foliage and a boho tassel tail. Ties effortlessly around any rearview car mirror or window frame.',
     storySnippet: 'Brings calm vibes, radiant color, and artisanal sunshine on every journey.',
@@ -447,7 +447,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 41,
     images: [
       '/images/crochet-spiderman-amigurumi.jpg',
-      '/images/crochet-spiderman-amigurumi.jpg',
+      '/images/crochet-grogu-amigurumi-keychain.jpg',
     ],
     description: 'The beloved web-slinging hero reimagined in charming hand-crocheted amigurumi form! Crafted with vibrant red and royal blue wool, hand-embroidered black webbing, felt safety eyes, and posed limbs. Sits upright on any desk, car dashboard, or collector shelf.',
     storySnippet: 'Takes over 8 hours of tight amigurumi stitch tension to ensure a firm, durable shape that lasts.',
@@ -479,7 +479,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 37,
     images: [
       '/images/crochet-grogu-amigurumi-keychain.jpg',
-      '/images/crochet-grogu-amigurumi-keychain.jpg',
+      '/images/crochet-stitch-amigurumi-keychain.jpg',
     ],
     description: 'The galaxy’s most adorable child in chibi amigurumi format. Features wide sage green pointed ears, deep safety bead eyes, oversized cozy sand robe with ribbed collar, and an antique brass keychain ring.',
     storySnippet: 'May the artisanal force be with you! Hand-knotted with obsessive attention to character detail.',
@@ -511,7 +511,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 30,
     images: [
       '/images/crochet-stitch-amigurumi-keychain.jpg',
-      '/images/crochet-stitch-amigurumi-keychain.jpg',
+      '/images/crochet-spiderman-amigurumi.jpg',
     ],
     description: 'Expressive hand-crocheted Stitch alien companion amigurumi with sky-blue ears, tufted head hair, signature turquoise nose, and a sturdy metal swivel clasp. An irresistible charm for bags, totes, and keys.',
     storySnippet: 'Ohana means family, and family means never leaving your handcrafted favorites behind.',
@@ -543,7 +543,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 52,
     images: [
       '/images/resin_frame.jpg',
-      '/images/resin_frame.jpg',
+      '/images/buddha_nameplate.jpg',
     ],
     description: 'Bespoke scalloped-edge resin art platter frame preserved with real handpicked dried wildflowers, 24K pure gold leaf inclusions, and custom vinyl lettering for anniversaries, milestones, and weddings. Includes a sturdy wrought display easel.',
     storySnippet: 'Each piece undergoes a 3-layer precision casting technique over 72 hours.',
@@ -577,7 +577,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 29,
     images: [
       '/images/buddha_nameplate.jpg',
-      '/images/buddha_nameplate.jpg',
+      '/images/resin_frame.jpg',
     ],
     description: 'Soulful handcrafted wall doorway plaque featuring high-relief sculpted clay Buddha in meditative dhyana mudra, hand-molded blossoming branch, textured plaster canvas backdrop, and customized embossed family lettering in antique metallic finish.',
     storySnippet: 'Sculpted with traditional Indian clay relief techniques and modern weatherproof finishes.',
@@ -611,7 +611,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 64,
     images: [
       '/images/stoneware_mug.jpg',
-      '/images/stoneware_mug.jpg',
+      '/images/ceramic_plates.jpg',
     ],
     description: 'Wheel-thrown ceramic stoneware mug with an ergonomic handle and satin matte speckled glaze that feels buttery smooth in hand.',
     storySnippet: 'Fired at 1240°C in an energy-efficient electric kiln for maximum heat retention.',
@@ -646,7 +646,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 41,
     images: [
       '/images/sculptural_vase.jpg',
-      '/images/sculptural_vase.jpg',
+      '/images/stoneware_mug.jpg',
     ],
     description: 'An architectural statement piece with biomorphic curved hollows and raw tactile surface finish. Serves as striking standalone sculpture or holding dried botanicals.',
     storySnippet: 'Inspired by the gentle wind-eroded contours of sandstone valleys.',
@@ -678,7 +678,7 @@ export const PRODUCTS: Product[] = [
     reviewCount: 22,
     images: [
       '/images/ceramic_plates.jpg',
-      '/images/ceramic_plates.jpg',
+      '/images/sculptural_vase.jpg',
     ],
     description: 'Hand-formed rim with organic wabi-sabi asymmetry. Subtle iron speckling randomly dispersed under a matte translucent glaze. Designed to turn everyday dining into an artful ritual.',
     storySnippet: 'Hand-rolled slab technique ensuring each piece carries individual fingerprints of craft.',
@@ -709,8 +709,8 @@ export const PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: 31,
     images: [
-      'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=1000&q=80',
+      '/images/ceramic_plates.jpg',
+      '/images/stoneware_mug.jpg',
     ],
     description: 'Traditional Kutch mud and mirror work (Lipan Kaam) recreated on waterproof engineered wood bases. Intricate geometric clay coils studded with authentic shaped mirrors (aabhla) with a protective clear coat.',
     storySnippet: 'Preserving a centuries-old artisanal craft from Gujarat in contemporary dining form.',

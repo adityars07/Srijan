@@ -24,7 +24,7 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
       videoRef.current.pause();
       setIsPlaying(false);
     } else {
-      videoRef.current.play().catch(() => {});
+      videoRef.current.play().catch(() => { });
       setIsPlaying(true);
     }
   };

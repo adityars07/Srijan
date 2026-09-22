@@ -673,7 +673,7 @@ async function main() {
       isFeatured: false,
       badge: 'Heritage Craft',
       images: [
-        'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=1000&q=80',
+        '/images/ceramic_plates.jpg',
       ],
       colors: [
         { name: 'Chalk Pearl', hex: '#F4EFEA' },

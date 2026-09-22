@@ -33,10 +33,10 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
   const collections = useMemo(() => {
     const allCollections = [
-      { name: 'Minimalist Stoneware', count: '4 pieces', image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=150&q=80' },
-      { name: 'Heritage Resin', count: '3 pieces', image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=150&q=80' },
-      { name: 'Boho Blooms', count: '5 pieces', image: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=150&q=80' },
-      { name: 'Earth & Clay', count: '6 pieces', image: 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=150&q=80' },
+      { name: 'Minimalist Stoneware', count: '4 pieces', image: '/images/stoneware_mug.jpg' },
+      { name: 'Heritage Resin', count: '3 pieces', image: '/images/resin_frame.jpg' },
+      { name: 'Boho Blooms', count: '5 pieces', image: '/images/crochet-artisan-floral-bouquet.jpg' },
+      { name: 'Earth & Clay', count: '6 pieces', image: '/images/buddha_nameplate.jpg' },
     ];
     if (!searchTerm.trim()) return allCollections;
     const q = searchTerm.toLowerCase();

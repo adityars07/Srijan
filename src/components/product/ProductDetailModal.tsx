@@ -54,11 +54,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   // Related products
   const relatedProducts = PRODUCTS.filter((p) => p.id !== product.id).slice(0, 3);
 
-  // Social proof customer lifestyle shots
+  // Social proof customer lifestyle shots (using real product photos)
   const customerShots = [
-    { user: '@home_by_ananya', img: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=400&q=80' },
-    { user: '@clayandlight', img: 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=400&q=80' },
-    { user: '@minimal_living', img: 'https://images.unsplash.com/photo-1582561424760-0321d75e81fa?auto=format&fit=crop&w=400&q=80' },
+    { user: '@home_by_ananya', img: '/images/crochet-artisan-floral-bouquet.jpg' },
+    { user: '@clayandlight', img: '/images/buddha_nameplate.jpg' },
+    { user: '@minimal_living', img: '/images/sculptural_vase.jpg' },
   ];
 
   return (
