@@ -16,6 +16,7 @@ import { ArticlesSection } from './components/home/ArticlesSection';
 import { ShopCatalogView } from './components/shop/ShopCatalogView';
 import { ProductDetailModal } from './components/product/ProductDetailModal';
 import { CartDrawer } from './components/cart/CartDrawer';
+import { WishlistDrawer } from './components/wishlist/WishlistDrawer';
 import { CheckoutView } from './components/checkout/CheckoutView';
 import { AboutView } from './components/about/AboutView';
 import { ContactModal } from './components/contact/ContactModal';
@@ -214,6 +215,13 @@ export function AppContent() {
       {/* Slide-out Cart Drawer */}
       <CartDrawer
         onProceedToCheckout={() => handleNavigate('checkout')}
+        onExploreMore={() => handleNavigate('shop')}
+      />
+
+      {/* Slide-out Wishlist Drawer */}
+      <WishlistDrawer
+        products={productsList}
+        onSelectProduct={setSelectedProduct}
         onExploreMore={() => handleNavigate('shop')}
       />
 

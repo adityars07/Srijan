@@ -39,7 +39,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
   if (!product) return null;
 
-  const wishlisted = isWishlisted(product.id);
+  const wishlisted = isWishlisted(product.id, (product as any).slug);
 
   const handleAddToCart = () => {
     if (!selectedColor) return;
@@ -112,7 +112,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
                     className={`icon-action-btn ${wishlisted ? 'active' : ''}`}
-                    onClick={() => toggleWishlist(product.id)}
+                    onClick={() => toggleWishlist(product.id, (product as any).slug)}
                     title="Wishlist"
                   >
                     <Heart size={18} fill={wishlisted ? '#D94343' : 'none'} stroke={wishlisted ? '#D94343' : 'currentColor'} />

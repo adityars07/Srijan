@@ -13,7 +13,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
   const { isWishlisted, toggleWishlist, addToCart } = useCart();
   const { formatProductPrice, formatProductOriginalPrice } = useCurrency();
 
-  const wishlisted = isWishlisted(product.id);
+  const wishlisted = isWishlisted(product.id, (product as any).slug);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -22,7 +22,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toggleWishlist(product.id);
+    toggleWishlist(product.id, (product as any).slug);
   };
 
   return (

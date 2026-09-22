@@ -11,6 +11,10 @@
     "services:seed": "npm --prefix server/services/auth-service run db:seed && npm --prefix server/services/product-service run db:seed && npm --prefix server/services/order-service run db:seed && npm --prefix server/services/commission-service run db:seed",
     "db:seed": "npm --prefix server run db:seed",
     "db:studio": "npm --prefix server run db:studio",
+    "db:studio:auth": "npm --prefix server/services/auth-service run db:studio",
+    "db:studio:product": "npm --prefix server/services/product-service run db:studio",
+    "db:studio:order": "npm --prefix server/services/order-service run db:studio",
+    "db:studio:commission": "npm --prefix server/services/commission-service run db:studio",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"

@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
-import { ChevronRight, X } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { ChevronRight, X, Heart } from 'lucide-react';
 import type { Product, FilterState } from '../../types';
 import { FilterSidebar } from './FilterSidebar';
 import { ProductCard } from './ProductCard';
 import { useCurrency } from '../../context/CurrencyContext';
+import { useCart } from '../../context/CartContext';
 
 interface ShopCatalogViewProps {
   products: Product[];
@@ -21,10 +22,17 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
   onNavigateHome,
 }) => {
   const { currency } = useCurrency();
+  const { isWishlisted, wishlistCount, openWishlist } = useCart();
+  const [onlyWishlist, setOnlyWishlist] = useState(false);
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
+      // Wishlist filter
+      if (onlyWishlist && !isWishlisted(p.id, (p as any).slug)) {
+        return false;
+      }
+
       // Category filter
       if (filters.categories.length > 0 && !filters.categories.includes(p.category)) {
         return false;
@@ -61,9 +69,10 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
       if (filters.sortBy === 'newest') return b.id.localeCompare(a.id);
       return b.rating - a.rating; // default popular
     });
-  }, [products, filters, currency]);
+  }, [products, filters, currency, onlyWishlist, isWishlisted]);
 
   const handleClearAll = () => {
+    setOnlyWishlist(false);
     onFilterChange({
       categories: [],
       priceRange: [0, 999999],
@@ -96,6 +105,7 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
   };
 
   const hasActiveFilters =
+    onlyWishlist ||
     filters.categories.length > 0 ||
     filters.collections.length > 0 ||
     filters.priceRange[0] > 0 ||
@@ -125,8 +135,34 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
             </p>
           </div>
 
-          {/* Sort Dropdown */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Quick Filters & Sort Dropdown */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => setOnlyWishlist(!onlyWishlist)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '7px',
+                padding: '8px 16px',
+                borderRadius: '9999px',
+                border: onlyWishlist ? '1px solid #C48B71' : '1px solid #EBE4DA',
+                background: onlyWishlist ? '#F4EFEA' : 'white',
+                color: onlyWishlist ? '#C48B71' : '#2B2523',
+                fontSize: '0.86rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <Heart
+                size={15}
+                fill={onlyWishlist ? '#C48B71' : 'none'}
+                stroke={onlyWishlist ? '#C48B71' : 'currentColor'}
+              />
+              <span>Saved in Wishlist ({wishlistCount})</span>
+            </button>
+
             <span style={{ fontSize: '0.84rem', color: '#746D66' }}>Sort by:</span>
             <select
               value={filters.sortBy}
@@ -154,6 +190,27 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
         {hasActiveFilters && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '30px', padding: '12px 16px', background: '#F4EFEA', borderRadius: '12px' }}>
             <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#746D66' }}>Filters:</span>
+
+            {onlyWishlist && (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: 'white',
+                  color: '#C48B71',
+                  padding: '4px 12px',
+                  borderRadius: '9999px',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  border: '1px solid #C48B71',
+                }}
+              >
+                <Heart size={12} fill="#C48B71" stroke="#C48B71" />
+                Wishlist Only
+                <X size={13} style={{ cursor: 'pointer' }} onClick={() => setOnlyWishlist(false)} />
+              </span>
+            )}
             
             {filters.categories.map((cat) => (
               <span

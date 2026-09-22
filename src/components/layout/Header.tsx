@@ -23,7 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAuth,
   onOpenCommission,
 }) => {
-  const { cartCount, wishlistCount, openCart } = useCart();
+  const { cartCount, wishlistCount, openCart, openWishlist } = useCart();
   const { currency, toggleCurrency } = useCurrency();
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
 
@@ -184,11 +184,16 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Wishlist */}
             <button
               className="icon-action-btn"
-              onClick={() => onNavigate('shop')}
+              onClick={openWishlist}
               title={`Wishlist (${wishlistCount} saved)`}
               aria-label="Wishlist"
             >
-              <Heart size={19} strokeWidth={1.8} />
+              <Heart
+                size={19}
+                strokeWidth={1.8}
+                fill={wishlistCount > 0 ? '#C48B71' : 'none'}
+                stroke={wishlistCount > 0 ? '#C48B71' : 'currentColor'}
+              />
               {wishlistCount > 0 && <span className="badge-counter">{wishlistCount}</span>}
             </button>
 
@@ -269,6 +274,29 @@ export const Header: React.FC<HeaderProps> = ({
                       <span>Studio Admin Dashboard</span>
                     </button>
                   )}
+
+                  <button
+                    onClick={() => { openWishlist(); setUserDropdownOpen(false); }}
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      padding: '8px 10px',
+                      borderRadius: '6px',
+                      border: 'none',
+                      background: 'transparent',
+                      fontSize: '0.84rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      color: '#2B2523',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = '#F4EFEA')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <Heart size={14} color="#C48B71" />
+                    <span>My Saved Wishlist ({wishlistCount})</span>
+                  </button>
 
                   <button
                     onClick={() => { onNavigate('tracking'); setUserDropdownOpen(false); }}
