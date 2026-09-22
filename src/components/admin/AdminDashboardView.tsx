@@ -10,7 +10,9 @@ import {
   DollarSign,
   RefreshCw,
   ArrowLeft,
-  X
+  X,
+  ShieldCheck,
+  Sparkles
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -22,9 +24,28 @@ interface AdminDashboardViewProps {
 }
 
 export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackToStore }) => {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, login } = useAuth();
   const { formatPrice } = useCurrency();
   const { showToast } = useCart();
+
+  const [adminEmail, setAdminEmail] = useState('admin@srijan.com');
+  const [adminPassword, setAdminPassword] = useState('ArtisanRakhi2026!');
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const handleAdminLogin = async (e?: React.FormEvent, customEmail?: string, customPass?: string) => {
+    if (e) e.preventDefault();
+    setLoginError('');
+    setIsLoggingIn(true);
+    try {
+      await login(customEmail || adminEmail, customPass || adminPassword);
+      showToast('Welcome to Srijan Studio Admin Dashboard!');
+    } catch (err: any) {
+      setLoginError(err.message || 'Login failed. Please verify admin credentials.');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
 
   const [activeTab, setActiveTab] = useState<'metrics' | 'orders' | 'products' | 'commissions' | 'messages'>('metrics');
   const [metrics, setMetrics] = useState<any | null>(null);
@@ -145,23 +166,202 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
 
   if (!isAdmin) {
     return (
-      <div className="container" style={{ padding: '80px 0', textAlign: 'center', maxWidth: '500px' }}>
-        <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#FDEDEC', color: '#C0392B', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-          <AlertTriangle size={32} />
-        </div>
-        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', marginBottom: '12px' }}>
-          Artisan Portal Access Restricted
-        </h2>
-        <p style={{ color: '#746D66', marginBottom: '24px' }}>
-          Please sign in with your master artisan administrator credentials (e.g. <code>admin@srijan.com</code>) to access studio management.
-        </p>
-        <button
-          className="see-all-link"
-          style={{ backgroundColor: '#2B2523', color: '#FBF9F5', margin: '0 auto' }}
-          onClick={onBackToStore}
+      <div className="container" style={{ padding: '60px 20px 100px', display: 'flex', justifyContent: 'center' }}>
+        <div
+          style={{
+            maxWidth: '480px',
+            width: '100%',
+            backgroundColor: '#FFFFFF',
+            borderRadius: '24px',
+            padding: '40px 36px',
+            boxShadow: '0 20px 40px rgba(43, 37, 35, 0.08)',
+            border: '1px solid #EBE5DC',
+            textAlign: 'center',
+          }}
         >
-          Return to Store
-        </button>
+          {/* Badge Icon */}
+          <div
+            style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '20px',
+              backgroundColor: '#F7EBE1',
+              color: '#C48B71',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 20px',
+              boxShadow: '0 8px 16px rgba(196, 139, 113, 0.2)',
+            }}
+          >
+            <ShieldCheck size={34} />
+          </div>
+
+          <h2
+            style={{
+              fontFamily: 'var(--font-serif)',
+              fontSize: '1.9rem',
+              color: '#2B2523',
+              marginBottom: '10px',
+              fontWeight: 600,
+            }}
+          >
+            Studio Admin Portal
+          </h2>
+
+          <p style={{ color: '#746D66', fontSize: '0.92rem', lineHeight: '1.5', marginBottom: '28px' }}>
+            Enter Master Artisan credentials to manage your product catalog, real-time inventory, bespoke commissions, and orders.
+          </p>
+
+          {/* Quick 1-Click Login Button */}
+          <button
+            type="button"
+            onClick={() => handleAdminLogin(undefined, 'admin@srijan.com', 'ArtisanRakhi2026!')}
+            disabled={isLoggingIn}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              padding: '14px',
+              borderRadius: '12px',
+              backgroundColor: '#C48B71',
+              color: '#FFFFFF',
+              border: 'none',
+              fontSize: '0.95rem',
+              fontWeight: 600,
+              cursor: isLoggingIn ? 'not-allowed' : 'pointer',
+              boxShadow: '0 4px 14px rgba(196, 139, 113, 0.35)',
+              transition: 'all 0.2s ease',
+              marginBottom: '22px',
+            }}
+          >
+            <Sparkles size={18} />
+            <span>{isLoggingIn ? 'Authenticating...' : '⚡ 1-Click Master Artisan Login'}</span>
+          </button>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              margin: '18px 0',
+              color: '#A0978E',
+              fontSize: '0.8rem',
+            }}
+          >
+            <div style={{ flex: 1, height: '1px', backgroundColor: '#EBE5DC' }} />
+            <span>or sign in manually</span>
+            <div style={{ flex: 1, height: '1px', backgroundColor: '#EBE5DC' }} />
+          </div>
+
+          {loginError && (
+            <div
+              style={{
+                backgroundColor: '#FDF2F2',
+                color: '#9B1C1C',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                fontSize: '0.85rem',
+                marginBottom: '18px',
+                textAlign: 'left',
+                border: '1px solid #F8B4B4',
+              }}
+            >
+              {loginError}
+            </div>
+          )}
+
+          {/* Manual Form */}
+          <form onSubmit={handleAdminLogin} style={{ textAlign: 'left' }}>
+            <div style={{ marginBottom: '16px' }}>
+              <label
+                htmlFor="admin-email"
+                style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#4A3E39', marginBottom: '6px' }}
+              >
+                Administrator Email
+              </label>
+              <input
+                id="admin-email"
+                type="email"
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
+                required
+                style={{
+                  width: '100%',
+                  padding: '11px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid #D5CCC1',
+                  fontSize: '0.9rem',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '22px' }}>
+              <label
+                htmlFor="admin-password"
+                style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#4A3E39', marginBottom: '6px' }}
+              >
+                Studio Password
+              </label>
+              <input
+                id="admin-password"
+                type="password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                required
+                style={{
+                  width: '100%',
+                  padding: '11px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid #D5CCC1',
+                  fontSize: '0.9rem',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoggingIn}
+              style={{
+                width: '100%',
+                padding: '13px',
+                borderRadius: '10px',
+                backgroundColor: '#2B2523',
+                color: '#FBF9F5',
+                border: 'none',
+                fontSize: '0.92rem',
+                fontWeight: 600,
+                cursor: isLoggingIn ? 'not-allowed' : 'pointer',
+                marginBottom: '14px',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {isLoggingIn ? 'Verifying...' : 'Sign In to Studio'}
+            </button>
+          </form>
+
+          <button
+            type="button"
+            onClick={onBackToStore}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#746D66',
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              marginTop: '8px',
+            }}
+          >
+            ← Return to Storefront
+          </button>
+        </div>
       </div>
     );
   }

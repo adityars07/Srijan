@@ -3,7 +3,7 @@ import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 
 interface FooterProps {
-  onNavigate: (view: 'home' | 'shop' | 'about' | 'checkout', category?: string) => void;
+  onNavigate: (view: 'home' | 'shop' | 'about' | 'checkout' | 'admin' | 'tracking', category?: string) => void;
   onOpenContact: () => void;
 }
 
@@ -106,6 +106,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenContact }) => 
               </li>
               <li>
                 <button onClick={() => onNavigate('about')}>Our Craft Story</button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('admin')} style={{ color: '#C48B71', fontWeight: 600 }}>
+                  Studio Admin Portal
+                </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('home')}>Care & Maintenance</button>

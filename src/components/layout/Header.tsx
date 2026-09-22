@@ -173,30 +173,35 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
               </li>
 
-              {/* Artisan Admin Portal Button */}
-              {isAdmin && (
-                <li>
-                  <button
-                    onClick={() => onNavigate('admin')}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '5px 12px',
-                      borderRadius: '9999px',
-                      backgroundColor: currentView === 'admin' ? '#C48B71' : '#2B2523',
-                      color: '#FBF9F5',
-                      fontSize: '0.78rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      border: 'none',
-                    }}
-                  >
-                    <ShieldCheck size={14} />
-                    <span>Studio Admin</span>
-                  </button>
-                </li>
-              )}
+              {/* Artisan Admin Portal Button - Always accessible */}
+              <li>
+                <button
+                  onClick={() => onNavigate('admin')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '5px 12px',
+                    borderRadius: '9999px',
+                    backgroundColor: currentView === 'admin' ? '#C48B71' : (isAdmin ? '#2B2523' : '#4A3E39'),
+                    color: '#FBF9F5',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    border: 'none',
+                    transition: 'all 0.2s ease',
+                  }}
+                  title="Master Artisan Studio Admin Management"
+                >
+                  <ShieldCheck size={14} />
+                  <span>Studio Admin</span>
+                  {isAdmin ? (
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#48BB78', display: 'inline-block' }} title="Authenticated as Admin" />
+                  ) : (
+                    <span style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.2)', padding: '1px 5px', borderRadius: '4px' }}>Login</span>
+                  )}
+                </button>
+              </li>
             </ul>
           </nav>
 
