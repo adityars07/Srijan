@@ -42,11 +42,41 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      {/* Top promotional bar */}
+      {/* Top promotional & utility bar */}
       <div className="top-announcement">
-        <span>Bespoke Handmade Art & Keepsakes</span>
-        <span className="highlight">• Free Shipping on orders over ₹3,000 / $50 USD •</span>
-        <span>Handcrafted in India by Rakhi</span>
+        <div className="container top-announcement-inner">
+          <div className="top-announcement-item top-announcement-left">
+            <Sparkles size={11} color="#E2B29F" />
+            <span>Handcrafted in India by Rakhi</span>
+          </div>
+
+          <div className="top-announcement-item top-announcement-center">
+            <span>Free Shipping on orders over ₹3,000 / $50 USD</span>
+          </div>
+
+          <div className="top-announcement-item top-announcement-right">
+            <button
+              type="button"
+              className="top-utility-link"
+              onClick={() => onNavigate('tracking')}
+              title="Track your order delivery status"
+            >
+              <Truck size={12} />
+              <span>Track Order</span>
+            </button>
+            <span className="top-utility-sep">|</span>
+            <button
+              type="button"
+              className="top-utility-link"
+              onClick={() => onNavigate('admin')}
+              title="Master Artisan Studio Portal"
+            >
+              <ShieldCheck size={12} />
+              <span>Studio Portal</span>
+              {isAdmin && <span className="top-admin-dot" title="Authenticated as Admin" />}
+            </button>
+          </div>
+        </div>
       </div>
 
       <header className="site-header">
@@ -90,7 +120,7 @@ export const Header: React.FC<HeaderProps> = ({
                   className={`nav-link-btn ${currentView === 'shop' ? 'active' : ''}`}
                   onClick={() => onNavigate('shop')}
                 >
-                  Shop <ChevronDown size={14} />
+                  Shop <ChevronDown size={13} />
                 </button>
 
                 {shopDropdownOpen && (
@@ -100,15 +130,15 @@ export const Header: React.FC<HeaderProps> = ({
                       top: '100%',
                       left: '-10px',
                       background: 'white',
-                      borderRadius: '16px',
+                      borderRadius: '14px',
                       boxShadow: '0 12px 30px rgba(0,0,0,0.08)',
                       border: '1px solid #EBE4DA',
-                      padding: '12px',
-                      minWidth: '220px',
+                      padding: '10px',
+                      minWidth: '210px',
                       zIndex: 100,
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '4px',
+                      gap: '3px',
                     }}
                   >
                     {categories.map((cat) => (
@@ -120,10 +150,13 @@ export const Header: React.FC<HeaderProps> = ({
                         }}
                         style={{
                           textAlign: 'left',
-                          padding: '8px 12px',
+                          padding: '7px 12px',
                           borderRadius: '8px',
-                          fontSize: '0.86rem',
+                          fontSize: '0.84rem',
                           color: '#2B2523',
+                          border: 'none',
+                          background: 'transparent',
+                          cursor: 'pointer',
                           transition: 'background 0.2s',
                         }}
                         onMouseEnter={(e) => (e.currentTarget.style.background = '#F4EFEA')}
@@ -138,6 +171,18 @@ export const Header: React.FC<HeaderProps> = ({
 
               <li>
                 <button
+                  className="nav-link-btn"
+                  onClick={onOpenCommission}
+                  style={{ color: '#B86F52', fontWeight: 600 }}
+                  title="Request Bespoke Handcrafted Creation"
+                >
+                  <HeartHandshake size={14} style={{ display: 'inline', marginRight: '4px' }} />
+                  <span>Custom Orders</span>
+                </button>
+              </li>
+
+              <li>
+                <button
                   className={`nav-link-btn ${currentView === 'about' ? 'active' : ''}`}
                   onClick={() => onNavigate('about')}
                 >
@@ -146,60 +191,8 @@ export const Header: React.FC<HeaderProps> = ({
               </li>
 
               <li>
-                <button
-                  className={`nav-link-btn ${currentView === 'tracking' ? 'active' : ''}`}
-                  onClick={() => onNavigate('tracking')}
-                  style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
-                >
-                  <Truck size={14} />
-                  <span>Track Order</span>
-                </button>
-              </li>
-
-              <li>
-                <button
-                  className="nav-link-btn"
-                  onClick={onOpenCommission}
-                  style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#B86F52', fontWeight: 600 }}
-                >
-                  <HeartHandshake size={14} />
-                  <span>Custom Order</span>
-                </button>
-              </li>
-
-              <li>
                 <button className="nav-link-btn" onClick={onOpenContact}>
                   Contact
-                </button>
-              </li>
-
-              {/* Artisan Admin Portal Button - Always accessible */}
-              <li>
-                <button
-                  onClick={() => onNavigate('admin')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '5px 12px',
-                    borderRadius: '9999px',
-                    backgroundColor: currentView === 'admin' ? '#C48B71' : (isAdmin ? '#2B2523' : '#4A3E39'),
-                    color: '#FBF9F5',
-                    fontSize: '0.78rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    border: 'none',
-                    transition: 'all 0.2s ease',
-                  }}
-                  title="Master Artisan Studio Admin Management"
-                >
-                  <ShieldCheck size={14} />
-                  <span>Studio Admin</span>
-                  {isAdmin ? (
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#48BB78', display: 'inline-block' }} title="Authenticated as Admin" />
-                  ) : (
-                    <span style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.2)', padding: '1px 5px', borderRadius: '4px' }}>Login</span>
-                  )}
                 </button>
               </li>
             </ul>

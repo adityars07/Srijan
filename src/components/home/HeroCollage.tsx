@@ -56,11 +56,11 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
 
               <button
                 className="see-all-link"
-                style={{ backgroundColor: '#2B2523', color: '#FBF9F5', marginBottom: '24px' }}
+                style={{ backgroundColor: '#2B2523', color: '#FBF9F5', marginBottom: '14px', padding: '8px 18px', fontSize: '0.84rem' }}
                 onClick={onExploreClick}
               >
                 <span>Explore Creations</span>
-                <ArrowUpRight size={16} />
+                <ArrowUpRight size={15} />
               </button>
             </div>
 
@@ -108,7 +108,7 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
                     onClick={togglePlay}
                     title={isPlaying ? 'Pause video' : 'Play video'}
                   >
-                    {isPlaying ? <Pause size={13} /> : <Play size={13} style={{ marginLeft: '1px' }} />}
+                    {isPlaying ? <Pause size={12} /> : <Play size={12} style={{ marginLeft: '1px' }} />}
                   </button>
                   <button
                     type="button"
@@ -116,14 +116,14 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
                     onClick={toggleMute}
                     title={isMuted ? 'Unmute video' : 'Mute video'}
                   >
-                    {isMuted ? <VolumeX size={13} /> : <Volume2 size={13} />}
+                    {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
                   </button>
                 </div>
               )}
 
               <div
                 className="hero-tile-pill"
-                style={{ bottom: '16px', top: 'auto', cursor: 'pointer', zIndex: 2 }}
+                style={{ bottom: '12px', top: 'auto', cursor: 'pointer', zIndex: 2 }}
                 onClick={(e) => {
                   e.stopPropagation();
                   onSelectCategory('Home Decor');
@@ -132,7 +132,7 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
                 Sculptural Vessels
               </div>
               <div className="hero-tile-btn" style={{ zIndex: 2 }}>
-                <ArrowUpRight size={18} />
+                <ArrowUpRight size={16} />
               </div>
             </div>
           </div>
@@ -142,7 +142,7 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
             {/* Top Tile: Ceramic Tableware / Plates */}
             <div
               className="hero-image-tile"
-              style={{ height: '300px' }}
+              style={{ height: '195px' }}
               onClick={() => onSelectProductById('dalmation-side-plate-24cm')}
             >
               <img
@@ -159,14 +159,14 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
                 Tableware
               </span>
               <div className="hero-tile-btn">
-                <ArrowUpRight size={18} />
+                <ArrowUpRight size={16} />
               </div>
             </div>
 
             {/* Bottom Tile: Custom Resin Art */}
             <div
               className="hero-image-tile"
-              style={{ height: '320px' }}
+              style={{ height: '220px' }}
               onClick={() => onSelectProductById('resin-customized-frame-large')}
             >
               <img
@@ -183,7 +183,7 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
                 Resin Keepsakes
               </span>
               <div className="hero-tile-btn">
-                <ArrowUpRight size={18} />
+                <ArrowUpRight size={16} />
               </div>
             </div>
           </div>
@@ -193,7 +193,7 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
             {/* Top Tile: Crochet Floral Bouquets */}
             <div
               className="hero-image-tile"
-              style={{ height: '320px' }}
+              style={{ height: '220px' }}
               onClick={() => onSelectProductById('crochet-artisan-floral-bouquet')}
             >
               <img
@@ -210,14 +210,14 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
                 Crochet Blooms
               </span>
               <div className="hero-tile-btn">
-                <ArrowUpRight size={18} />
+                <ArrowUpRight size={16} />
               </div>
             </div>
 
             {/* Bottom Tile: Stoneware Cups & Planters */}
             <div
               className="hero-image-tile"
-              style={{ height: '300px' }}
+              style={{ height: '195px' }}
               onClick={() => onSelectProductById('aurora-brew-mug-speckled')}
             >
               <img
@@ -234,7 +234,7 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
                 Artisan Cups
               </span>
               <div className="hero-tile-btn">
-                <ArrowUpRight size={18} />
+                <ArrowUpRight size={16} />
               </div>
             </div>
           </div>
