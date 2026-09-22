@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Heart, ShoppingBag, User, ChevronDown, Sparkles, ShieldCheck, Truck, HeartHandshake, LogOut } from 'lucide-react';
+import { Search, Heart, ShoppingBag, User, ChevronDown, ShieldCheck, Truck, LogOut, Sparkles } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useAuth } from '../../context/AuthContext';
@@ -42,43 +42,6 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      {/* Top promotional & utility bar */}
-      <div className="top-announcement">
-        <div className="container top-announcement-inner">
-          <div className="top-announcement-item top-announcement-left">
-            <Sparkles size={11} color="#E2B29F" />
-            <span>Handcrafted in India by Rakhi</span>
-          </div>
-
-          <div className="top-announcement-item top-announcement-center">
-            <span>Free Shipping on orders over ₹3,000 / $50 USD</span>
-          </div>
-
-          <div className="top-announcement-item top-announcement-right">
-            <button
-              type="button"
-              className="top-utility-link"
-              onClick={() => onNavigate('tracking')}
-              title="Track your order delivery status"
-            >
-              <Truck size={12} />
-              <span>Track Order</span>
-            </button>
-            <span className="top-utility-sep">|</span>
-            <button
-              type="button"
-              className="top-utility-link"
-              onClick={() => onNavigate('admin')}
-              title="Master Artisan Studio Portal"
-            >
-              <ShieldCheck size={12} />
-              <span>Studio Portal</span>
-              {isAdmin && <span className="top-admin-dot" title="Authenticated as Admin" />}
-            </button>
-          </div>
-        </div>
-      </div>
-
       <header className="site-header">
         <div className="container header-inner">
           {/* Brand Logo with Organic Glyph */}
@@ -173,11 +136,9 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   className="nav-link-btn"
                   onClick={onOpenCommission}
-                  style={{ color: '#B86F52', fontWeight: 600 }}
                   title="Request Bespoke Handcrafted Creation"
                 >
-                  <HeartHandshake size={14} style={{ display: 'inline', marginRight: '4px' }} />
-                  <span>Custom Orders</span>
+                  Custom Orders
                 </button>
               </li>
 

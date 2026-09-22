@@ -1,15 +1,15 @@
 import React, { useState, useRef } from 'react';
-import { ArrowUpRight, Sparkles, Volume2, VolumeX, Play, Pause } from 'lucide-react';
+import { ArrowUpRight, Volume2, VolumeX, Play, Pause } from 'lucide-react';
 
 interface HeroCollageProps {
-  onExploreClick: () => void;
-  onSelectCategory: (category: string) => void;
+  onExploreClick?: () => void;
+  onSelectCategory?: (category: string) => void;
   onSelectProductById: (id: string) => void;
 }
 
 export const HeroCollage: React.FC<HeroCollageProps> = ({
   onExploreClick,
-  onSelectCategory,
+  onSelectCategory: _onSelectCategory,
   onSelectProductById,
 }) => {
   const [isPlaying, setIsPlaying] = useState(true);
@@ -42,26 +42,18 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
         <div className="hero-grid">
           {/* Main Left Editorial Card */}
           <div className="hero-feature-card">
-            <div>
-              <div className="hero-eyebrow">
-                <Sparkles size={14} style={{ display: 'inline', marginRight: '6px' }} />
-                Handcrafted in India by Rakhi
-              </div>
+            <div
+              className="hero-feature-card-content"
+              onClick={onExploreClick}
+              style={{ cursor: onExploreClick ? 'pointer' : 'default' }}
+              title="Explore all handcrafted creations"
+            >
               <h1 className="hero-title">
                 Handcrafted Elegance for Your Home
               </h1>
               <p className="hero-description">
                 Discover bespoke artisan treasures: everlasting crochet blooms, preserved botanical resin frames, wheel-thrown stoneware, and personalized entrance plaques.
               </p>
-
-              <button
-                className="see-all-link"
-                style={{ backgroundColor: '#2B2523', color: '#FBF9F5', marginBottom: '14px', padding: '8px 18px', fontSize: '0.84rem' }}
-                onClick={onExploreClick}
-              >
-                <span>Explore Creations</span>
-                <ArrowUpRight size={15} />
-              </button>
             </div>
 
             {/* Bottom Arched Visual Art & Product Reel */}
@@ -81,12 +73,13 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
                   muted
                   playsInline
                   onError={() => setVideoError(true)}
-                  style={{ display: 'block' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                 />
               ) : (
                 <img
                   src="/images/sculptural_vase.jpg"
                   alt="Sculptural handcrafted vase"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               )}
 
@@ -121,18 +114,8 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
                 </div>
               )}
 
-              <div
-                className="hero-tile-pill"
-                style={{ bottom: '12px', top: 'auto', cursor: 'pointer', zIndex: 2 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectCategory('Home Decor');
-                }}
-              >
-                Sculptural Vessels
-              </div>
               <div className="hero-tile-btn" style={{ zIndex: 2 }}>
-                <ArrowUpRight size={16} />
+                <ArrowUpRight size={17} />
               </div>
             </div>
           </div>
@@ -142,48 +125,30 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
             {/* Top Tile: Ceramic Tableware / Plates */}
             <div
               className="hero-image-tile"
-              style={{ height: '195px' }}
               onClick={() => onSelectProductById('dalmation-side-plate-24cm')}
+              title="Tableware Creations"
             >
               <img
                 src="/images/ceramic_plates.jpg"
                 alt="Handcrafted ceramic dinner plate with dried pampas"
               />
-              <span
-                className="hero-tile-pill"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectCategory('Plates & Bowls');
-                }}
-              >
-                Tableware
-              </span>
               <div className="hero-tile-btn">
-                <ArrowUpRight size={16} />
+                <ArrowUpRight size={17} />
               </div>
             </div>
 
             {/* Bottom Tile: Custom Resin Art */}
             <div
               className="hero-image-tile"
-              style={{ height: '220px' }}
               onClick={() => onSelectProductById('resin-customized-frame-large')}
+              title="Resin Keepsakes"
             >
               <img
                 src="/images/resin_frame.jpg"
                 alt="Botanical resin art frame with gold flecks"
               />
-              <span
-                className="hero-tile-pill"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectCategory('Resin Art');
-                }}
-              >
-                Resin Keepsakes
-              </span>
               <div className="hero-tile-btn">
-                <ArrowUpRight size={16} />
+                <ArrowUpRight size={17} />
               </div>
             </div>
           </div>
@@ -193,48 +158,30 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
             {/* Top Tile: Crochet Floral Bouquets */}
             <div
               className="hero-image-tile"
-              style={{ height: '220px' }}
               onClick={() => onSelectProductById('crochet-artisan-floral-bouquet')}
+              title="Crochet Blooms"
             >
               <img
                 src="/images/crochet-artisan-floral-bouquet.jpg"
                 alt="Handcrafted Crochet Floral Bouquet"
               />
-              <span
-                className="hero-tile-pill"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectCategory('Crochet');
-                }}
-              >
-                Crochet Blooms
-              </span>
               <div className="hero-tile-btn">
-                <ArrowUpRight size={16} />
+                <ArrowUpRight size={17} />
               </div>
             </div>
 
             {/* Bottom Tile: Stoneware Cups & Planters */}
             <div
               className="hero-image-tile"
-              style={{ height: '195px' }}
               onClick={() => onSelectProductById('aurora-brew-mug-speckled')}
+              title="Artisan Cups"
             >
               <img
                 src="/images/stoneware_mug.jpg"
                 alt="Artisan stoneware cup"
               />
-              <span
-                className="hero-tile-pill"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectCategory('Ceramics & Mugs');
-                }}
-              >
-                Artisan Cups
-              </span>
               <div className="hero-tile-btn">
-                <ArrowUpRight size={16} />
+                <ArrowUpRight size={17} />
               </div>
             </div>
           </div>
