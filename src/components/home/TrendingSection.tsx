@@ -29,15 +29,37 @@ export const TrendingSection: React.FC<TrendingSectionProps> = ({
           </button>
         </div>
 
-        <div className="products-grid">
-          {products.slice(0, 8).map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onSelect={onSelectProduct}
-            />
-          ))}
-        </div>
+        {products.length > 0 ? (
+          <div className="products-grid">
+            {products.slice(0, 8).map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onSelect={onSelectProduct}
+              />
+            ))}
+          </div>
+        ) : (
+          <div
+            style={{
+              padding: '60px 24px',
+              textAlign: 'center',
+              backgroundColor: '#FBF9F5',
+              borderRadius: '16px',
+              border: '1px dashed #EBE4DA',
+            }}
+          >
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', color: '#2B2523', marginBottom: '8px' }}>
+              Handcrafted Inventory Loading
+            </h3>
+            <p style={{ color: '#746D66', fontSize: '0.9rem', maxWidth: '440px', margin: '0 auto 20px' }}>
+              Our artisan studio is ready for new creations. Publish products in the Admin Dashboard to feature them here!
+            </p>
+            <button className="see-all-link" onClick={onSeeAllClick}>
+              <span>Browse Catalog</span>
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

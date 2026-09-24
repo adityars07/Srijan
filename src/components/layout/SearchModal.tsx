@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { Search, X, ArrowUpRight } from 'lucide-react';
-import { PRODUCTS, ARTICLES } from '../../data/mockData';
 import type { Product } from '../../types';
 import { useCurrency } from '../../context/CurrencyContext';
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
+  products: Product[];
   onSelectProduct: (product: Product) => void;
   onViewAllResults: (query: string) => void;
 }
@@ -14,45 +14,46 @@ interface SearchModalProps {
 export const SearchModal: React.FC<SearchModalProps> = ({
   isOpen,
   onClose,
+  products,
   onSelectProduct,
   onViewAllResults,
 }) => {
-  const [searchTerm, setSearchTerm] = useState('Mug');
+  const [searchTerm, setSearchTerm] = useState('');
   const { formatProductPrice } = useCurrency();
 
   const filteredProducts = useMemo(() => {
-    if (!searchTerm.trim()) return PRODUCTS.slice(0, 4);
+    if (!searchTerm.trim()) return products.slice(0, 4);
     const query = searchTerm.toLowerCase();
-    return PRODUCTS.filter(
+    return products.filter(
       (p) =>
         p.name.toLowerCase().includes(query) ||
         p.category.toLowerCase().includes(query) ||
         p.description.toLowerCase().includes(query)
     );
-  }, [searchTerm]);
+  }, [searchTerm, products]);
 
   const collections = useMemo(() => {
-    const allCollections = [
-      { name: 'Minimalist Stoneware', count: '4 pieces', image: '/images/stoneware_mug.jpg' },
-      { name: 'Heritage Resin', count: '3 pieces', image: '/images/resin_frame.jpg' },
-      { name: 'Boho Blooms', count: '5 pieces', image: '/images/crochet-artisan-floral-bouquet.jpg' },
-      { name: 'Earth & Clay', count: '6 pieces', image: '/images/buddha_nameplate.jpg' },
-    ];
-    if (!searchTerm.trim()) return allCollections;
+    const map = new Map<string, { name: string; count: number; image?: string }>();
+    products.forEach((p) => {
+      if (!p.collection) return;
+      const existing = map.get(p.collection);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        map.set(p.collection, { name: p.collection, count: 1, image: p.images[0] });
+      }
+    });
+    const list = Array.from(map.values()).map((c) => ({
+      name: c.name,
+      count: `${c.count} piece${c.count !== 1 ? 's' : ''}`,
+      image: c.image || '',
+    }));
+    if (!searchTerm.trim()) return list;
     const q = searchTerm.toLowerCase();
-    return allCollections.filter((c) => c.name.toLowerCase().includes(q));
-  }, [searchTerm]);
+    return list.filter((c) => c.name.toLowerCase().includes(q));
+  }, [searchTerm, products]);
 
-  const filteredArticles = useMemo(() => {
-    if (!searchTerm.trim()) return ARTICLES;
-    const query = searchTerm.toLowerCase();
-    return ARTICLES.filter(
-      (a) =>
-        a.title.toLowerCase().includes(query) ||
-        a.excerpt.toLowerCase().includes(query) ||
-        a.category.toLowerCase().includes(query)
-    );
-  }, [searchTerm]);
+  const filteredArticles: any[] = [];
 
   if (!isOpen) return null;
 

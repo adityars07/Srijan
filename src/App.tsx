@@ -25,9 +25,8 @@ import { CustomCommissionModal } from './components/custom/CustomCommissionModal
 import { OrderTrackingView } from './components/order/OrderTrackingView';
 import { AdminDashboardView } from './components/admin/AdminDashboardView';
 import { Toast } from './components/ui/Toast';
-import { PRODUCTS, REVIEWS } from './data/mockData';
 import { api } from './services/api';
-import type { Product, FilterState } from './types';
+import type { Product, FilterState, CustomerReview } from './types';
 
 export function AppContent() {
   const [currentView, setCurrentView] = useState<AppView>('home');
@@ -36,21 +35,41 @@ export function AppContent() {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isCommissionOpen, setIsCommissionOpen] = useState(false);
-  const [trackingOrderNumber, setTrackingOrderNumber] = useState<string>('SRJ-2026-1001');
+  const [trackingOrderNumber, setTrackingOrderNumber] = useState<string>('');
 
-  // Live products state populated from backend database
-  const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
+  // Live products and reviews state populated purely from backend database
+  const [productsList, setProductsList] = useState<Product[]>([]);
+  const [reviewsList, setReviewsList] = useState<CustomerReview[]>([]);
 
   useEffect(() => {
     // Fetch live products from backend database
     api.products.getAll()
       .then((res) => {
-        if (res.products && res.products.length > 0) {
-          setProductsList(res.products as Product[]);
-        }
+        setProductsList((res.products || []) as Product[]);
       })
       .catch((err) => {
-        console.warn('Backend live products fetch fallback to catalog:', err.message);
+        console.warn('Backend live products fetch error:', err.message);
+        setProductsList([]);
+      });
+
+    // Fetch live reviews from backend database
+    api.reviews.getAll()
+      .then((res) => {
+        const formatted: CustomerReview[] = (res.reviews || []).map((r: any) => ({
+          id: r.id,
+          author: r.authorName || r.author || 'Artisan Collector',
+          location: r.authorLocation || r.location || 'India',
+          rating: r.rating || 5,
+          comment: r.comment || '',
+          date: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : 'Recent',
+          productName: r.product?.name,
+          productImage: r.product?.images?.[0]?.url,
+        }));
+        setReviewsList(formatted);
+      })
+      .catch((err) => {
+        console.warn('Backend live reviews fetch error:', err.message);
+        setReviewsList([]);
       });
   }, [currentView]);
 
@@ -116,6 +135,7 @@ export function AppContent() {
         {currentView === 'home' && (
           <>
             <HeroCollage
+              products={productsList}
               onExploreClick={() => handleNavigate('shop')}
               onSelectCategory={(cat) => handleSelectCategoryFromPills(cat)}
               onSelectProductById={handleSelectProductById}
@@ -142,7 +162,7 @@ export function AppContent() {
               }}
             />
 
-            <ReviewsSection reviews={REVIEWS} />
+            <ReviewsSection reviews={reviewsList} />
 
             <FAQSection onContactClick={() => setIsContactOpen(true)} />
 
@@ -200,6 +220,7 @@ export function AppContent() {
       {/* Product Detail Modal */}
       <ProductDetailModal
         product={selectedProduct}
+        allProducts={productsList}
         onClose={() => setSelectedProduct(null)}
         onSelectRelated={(p) => setSelectedProduct(p)}
       />
@@ -208,6 +229,7 @@ export function AppContent() {
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
+        products={productsList}
         onSelectProduct={setSelectedProduct}
         onViewAllResults={handleViewAllFromSearch}
       />

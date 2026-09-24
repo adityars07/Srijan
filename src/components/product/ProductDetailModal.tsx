@@ -3,16 +3,17 @@ import { X, Heart, Share2, Plus, Minus, ChevronDown } from 'lucide-react';
 import type { Product, ProductColor } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { useCurrency } from '../../context/CurrencyContext';
-import { PRODUCTS } from '../../data/mockData';
 
 interface ProductDetailModalProps {
   product: Product | null;
+  allProducts?: Product[];
   onClose: () => void;
   onSelectRelated: (product: Product) => void;
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   product,
+  allProducts = [],
   onClose,
   onSelectRelated,
 }) => {
@@ -51,15 +52,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     showToast('Product link copied to clipboard!');
   };
 
-  // Related products
-  const relatedProducts = PRODUCTS.filter((p) => p.id !== product.id).slice(0, 3);
-
-  // Social proof customer lifestyle shots (using real product photos)
-  const customerShots = [
-    { user: '@home_by_ananya', img: '/images/crochet-artisan-floral-bouquet.jpg' },
-    { user: '@clayandlight', img: '/images/buddha_nameplate.jpg' },
-    { user: '@minimal_living', img: '/images/sculptural_vase.jpg' },
-  ];
+  // Related products from live product inventory
+  const relatedProducts = (allProducts || []).filter((p: Product) => p.id !== product.id).slice(0, 3);
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -222,44 +216,29 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             </div>
           </div>
 
-          {/* Social Proof: Seen by You (Lifestyle Community Shots) */}
-          <div style={{ marginTop: '54px', paddingTop: '32px', borderTop: '1px solid #EBE4DA' }}>
-            <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 500, marginBottom: '18px' }}>
-              Seen in your homes:
-            </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-              {customerShots.map((shot, idx) => (
-                <div key={idx} style={{ position: 'relative', height: '180px', borderRadius: '12px', overflow: 'hidden' }}>
-                  <img src={shot.img} alt={shot.user} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  <span style={{ position: 'absolute', bottom: '10px', left: '10px', background: 'rgba(0,0,0,0.5)', color: 'white', fontSize: '0.72rem', padding: '3px 8px', borderRadius: '9999px', backdropFilter: 'blur(4px)' }}>
-                    {shot.user}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Recommendations: You May Also Like */}
-          <div style={{ marginTop: '48px' }}>
-            <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 500, marginBottom: '20px' }}>
-              You may also like:
-            </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-              {relatedProducts.map((rel) => (
-                <div
-                  key={rel.id}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => onSelectRelated(rel)}
-                >
-                  <div style={{ height: '160px', borderRadius: '12px', overflow: 'hidden', background: '#F4EFEA', marginBottom: '8px' }}>
-                    <img src={rel.images[0]} alt={rel.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          {relatedProducts.length > 0 && (
+            <div style={{ marginTop: '48px' }}>
+              <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 500, marginBottom: '20px' }}>
+                You may also like:
+              </h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
+                {relatedProducts.map((rel: Product) => (
+                  <div
+                    key={rel.id}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => onSelectRelated(rel)}
+                  >
+                    <div style={{ height: '160px', borderRadius: '12px', overflow: 'hidden', background: '#F4EFEA', marginBottom: '8px' }}>
+                      <img src={rel.images[0]} alt={rel.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 500, color: '#2B2523' }}>{rel.name}</div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#746D66', marginTop: '2px' }}>{formatProductPrice(rel)}</div>
                   </div>
-                  <div style={{ fontSize: '0.88rem', fontWeight: 500, color: '#2B2523' }}>{rel.name}</div>
-                  <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#746D66', marginTop: '2px' }}>{formatProductPrice(rel)}</div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

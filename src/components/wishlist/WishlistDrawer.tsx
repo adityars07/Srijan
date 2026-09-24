@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { X, Heart, Trash2, ShoppingBag, ArrowRight, Sparkles } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useCurrency } from '../../context/CurrencyContext';
-import { PRODUCTS } from '../../data/mockData';
 import type { Product } from '../../types';
 
 interface WishlistDrawerProps {
@@ -30,7 +29,7 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
 
   const { formatProductPrice, formatProductOriginalPrice } = useCurrency();
 
-  // Match wishlisted items from live products or mock catalog
+  // Match wishlisted items from live products
   const wishlistedProducts = useMemo(() => {
     const list: Product[] = [];
     const seen = new Set<string>();
@@ -46,7 +45,6 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
     };
 
     products.forEach(checkAndAdd);
-    PRODUCTS.forEach(checkAndAdd);
 
     return list;
   }, [products, wishlist, isWishlisted]);

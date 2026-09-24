@@ -59,13 +59,13 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
   const [newProdName, setNewProdName] = useState('');
   const [newProdCategory, setNewProdCategory] = useState('Crochet');
-  const [newProdPriceINR, setNewProdPriceINR] = useState('1500');
-  const [newProdPriceUSD, setNewProdPriceUSD] = useState('20');
-  const [newProdSku, setNewProdSku] = useState('SRJ-CR-NEW');
-  const [newProdMaterial, setNewProdMaterial] = useState('Milk Cotton Yarn');
+  const [newProdPriceINR, setNewProdPriceINR] = useState('');
+  const [newProdPriceUSD, setNewProdPriceUSD] = useState('');
+  const [newProdSku, setNewProdSku] = useState('');
+  const [newProdMaterial, setNewProdMaterial] = useState('');
   const [newProdDescription, setNewProdDescription] = useState('');
-  const [newProdImageUrl, setNewProdImageUrl] = useState('/images/crochet-artisan-floral-bouquet.jpg');
-  const [newProdStock, setNewProdStock] = useState('20');
+  const [newProdImageUrl, setNewProdImageUrl] = useState('');
+  const [newProdStock, setNewProdStock] = useState('10');
   const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
 
   // Edit stock/price modal
@@ -131,6 +131,12 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
       setIsNewProductModalOpen(false);
       setNewProdName('');
       setNewProdDescription('');
+      setNewProdPriceINR('');
+      setNewProdPriceUSD('');
+      setNewProdSku('');
+      setNewProdMaterial('');
+      setNewProdImageUrl('');
+      setNewProdStock('10');
       loadData();
     } catch (err: any) {
       showToast(err.message || 'Failed to create product');
@@ -957,15 +963,41 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Photo URL *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="/images/crochet-artisan-floral-bouquet.jpg"
-                  value={newProdImageUrl}
-                  onChange={(e) => setNewProdImageUrl(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
-                />
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Product Photo *</label>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Enter image URL or select photo below"
+                    value={newProdImageUrl}
+                    onChange={(e) => setNewProdImageUrl(e.target.value)}
+                    style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setNewProdImageUrl(reader.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    style={{ fontSize: '0.8rem' }}
+                  />
+                  {newProdImageUrl && (
+                    <img
+                      src={newProdImageUrl}
+                      alt="Preview"
+                      style={{ width: '42px', height: '42px', borderRadius: '6px', objectFit: 'cover', border: '1px solid #EBE4DA' }}
+                    />
+                  )}
+                </div>
               </div>
 
               <div>

@@ -1,13 +1,16 @@
 import React, { useState, useRef } from 'react';
 import { ArrowUpRight, Volume2, VolumeX, Play, Pause } from 'lucide-react';
+import type { Product } from '../../types';
 
 interface HeroCollageProps {
+  products?: Product[];
   onExploreClick?: () => void;
   onSelectCategory?: (category: string) => void;
   onSelectProductById: (id: string) => void;
 }
 
 export const HeroCollage: React.FC<HeroCollageProps> = ({
+  products = [],
   onExploreClick,
   onSelectCategory: _onSelectCategory,
   onSelectProductById,
@@ -36,6 +39,19 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
     setIsMuted(!isMuted);
   };
 
+  const tile1 = products[0];
+  const tile2 = products[1];
+  const tile3 = products[2];
+  const tile4 = products[3];
+
+  const handleTileClick = (p?: Product) => {
+    if (p) {
+      onSelectProductById(p.id);
+    } else if (onExploreClick) {
+      onExploreClick();
+    }
+  };
+
   return (
     <section className="hero-section">
       <div className="container">
@@ -59,9 +75,9 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
             {/* Bottom Arched Visual Art & Product Reel */}
             <div
               className="hero-bottom-art"
-              onClick={() => onSelectProductById('harmony-sculptural-vase')}
+              onClick={() => handleTileClick(tile1)}
               style={{ cursor: 'pointer' }}
-              title="View Harmony Organic Sculptural Vase"
+              title="Artisan Studio Reel"
             >
               {!videoError ? (
                 <video
@@ -77,8 +93,8 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
                 />
               ) : (
                 <img
-                  src="/images/sculptural_vase.jpg"
-                  alt="Sculptural handcrafted vase"
+                  src={tile1?.images?.[0] || '/images/sculptural_vase.jpg'}
+                  alt={tile1?.name || 'Sculptural handcrafted vase'}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               )}
@@ -122,30 +138,30 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
 
           {/* Middle Column Collage */}
           <div className="hero-col">
-            {/* Top Tile: Ceramic Tableware / Plates */}
+            {/* Top Tile */}
             <div
               className="hero-image-tile"
-              onClick={() => onSelectProductById('dalmation-side-plate-24cm')}
-              title="Tableware Creations"
+              onClick={() => handleTileClick(tile1)}
+              title={tile1?.name || 'Tableware Creations'}
             >
               <img
-                src="/images/ceramic_plates.jpg"
-                alt="Handcrafted ceramic dinner plate with dried pampas"
+                src={tile1?.images?.[0] || '/images/ceramic_plates.jpg'}
+                alt={tile1?.name || 'Handcrafted ceramic dinner plate with dried pampas'}
               />
               <div className="hero-tile-btn">
                 <ArrowUpRight size={17} />
               </div>
             </div>
 
-            {/* Bottom Tile: Custom Resin Art */}
+            {/* Bottom Tile */}
             <div
               className="hero-image-tile"
-              onClick={() => onSelectProductById('resin-customized-frame-large')}
-              title="Resin Keepsakes"
+              onClick={() => handleTileClick(tile2)}
+              title={tile2?.name || 'Resin Keepsakes'}
             >
               <img
-                src="/images/resin_frame.jpg"
-                alt="Botanical resin art frame with gold flecks"
+                src={tile2?.images?.[0] || '/images/resin_frame.jpg'}
+                alt={tile2?.name || 'Botanical resin art frame with gold flecks'}
               />
               <div className="hero-tile-btn">
                 <ArrowUpRight size={17} />
@@ -155,30 +171,30 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
 
           {/* Right Column Collage */}
           <div className="hero-col">
-            {/* Top Tile: Crochet Floral Bouquets */}
+            {/* Top Tile */}
             <div
               className="hero-image-tile"
-              onClick={() => onSelectProductById('crochet-artisan-floral-bouquet')}
-              title="Crochet Blooms"
+              onClick={() => handleTileClick(tile3)}
+              title={tile3?.name || 'Crochet Blooms'}
             >
               <img
-                src="/images/crochet-artisan-floral-bouquet.jpg"
-                alt="Handcrafted Crochet Floral Bouquet"
+                src={tile3?.images?.[0] || '/images/crochet-artisan-floral-bouquet.jpg'}
+                alt={tile3?.name || 'Handcrafted Crochet Floral Bouquet'}
               />
               <div className="hero-tile-btn">
                 <ArrowUpRight size={17} />
               </div>
             </div>
 
-            {/* Bottom Tile: Stoneware Cups & Planters */}
+            {/* Bottom Tile */}
             <div
               className="hero-image-tile"
-              onClick={() => onSelectProductById('aurora-brew-mug-speckled')}
-              title="Artisan Cups"
+              onClick={() => handleTileClick(tile4)}
+              title={tile4?.name || 'Artisan Cups'}
             >
               <img
-                src="/images/stoneware_mug.jpg"
-                alt="Artisan stoneware cup"
+                src={tile4?.images?.[0] || '/images/stoneware_mug.jpg'}
+                alt={tile4?.name || 'Artisan stoneware cup'}
               />
               <div className="hero-tile-btn">
                 <ArrowUpRight size={17} />

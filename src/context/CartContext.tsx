@@ -47,73 +47,25 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>(() => {
-    return [
-      {
-        id: 'crochet-artisan-floral-bouquet-Sunflower Sunshine & Daisy-Deluxe Bouquet (7 Stems)',
-        product: {
-          id: 'crochet-artisan-floral-bouquet',
-          name: 'Handcrafted Crochet Floral Bouquet - Sunflower & Blooms',
-          category: 'Crochet',
-          collection: 'Boho Blooms',
-          priceINR: 1850,
-          priceUSD: 23,
-          originalPriceINR: 2200,
-          originalPriceUSD: 28,
-          rating: 5.0,
-          reviewCount: 42,
-          images: [
-            '/images/crochet-artisan-floral-bouquet.jpg',
-          ],
-          description: 'An everlasting artisanal bouquet meticulously hand-crocheted with premium milk cotton yarn.',
-          material: 'Premium Milk Cotton Yarn, Floral Stems, Kraft Wrap',
-          inStock: true,
-          sku: 'SRJ-CR-01',
-          colors: [
-            { name: 'Sunflower Sunshine & Daisy', hex: '#F4C430' },
-          ],
-          sizes: ['Deluxe Bouquet (7 Stems)'],
-          defaultSize: 'Deluxe Bouquet (7 Stems)',
-          careInstructions: 'Gently dust with soft brush.',
-          deliveryInfo: 'Dispatched in 2-3 business days.',
-        },
-        selectedColor: { name: 'Sunflower Sunshine & Daisy', hex: '#F4C430' },
-        selectedSize: 'Deluxe Bouquet (7 Stems)',
-        quantity: 1,
-      },
-      {
-        id: 'resin-customized-frame-large-Opal & Gold Fleck-Large (32 cm)',
-        product: {
-          id: 'resin-customized-frame-large',
-          name: 'Resin Customized Keepsake Frame - Botanical Gold Platter',
-          category: 'Resin Art',
-          collection: 'Heritage Resin',
-          priceINR: 5500,
-          priceUSD: 66,
-          originalPriceINR: 6200,
-          originalPriceUSD: 75,
-          rating: 5.0,
-          reviewCount: 52,
-          images: [
-            '/images/resin_frame.jpg',
-          ],
-          description: 'Bespoke scalloped-edge resin art platter frame preserved with real handpicked dried wildflowers and 24K pure gold leaf.',
-          material: 'High-clarity UV-Resistant Epoxy Resin, Botanical Flora, 24k Gold Foil',
-          inStock: true,
-          sku: 'SRJ-RS-02',
-          colors: [
-            { name: 'Opal & Gold Fleck', hex: '#F3EDE2' },
-          ],
-          sizes: ['Large (32 cm)'],
-          defaultSize: 'Large (32 cm)',
-          careInstructions: 'Clean gently with microfiber cloth.',
-          deliveryInfo: 'Bespoke personalization takes 5-7 days.',
-        },
-        selectedColor: { name: 'Opal & Gold Fleck', hex: '#F3EDE2' },
-        selectedSize: 'Large (32 cm)',
-        quantity: 1,
-      },
-    ];
+    try {
+      const saved = localStorage.getItem('srijan_cart');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {
+      // ignore
+    }
+    return [];
   });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('srijan_cart', JSON.stringify(cart));
+    } catch (e) {
+      console.warn('Failed to save cart to localStorage', e);
+    }
+  }, [cart]);
 
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState<boolean>(false);
@@ -127,7 +79,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } catch {
       // ignore
     }
-    return ['crochet-artisan-floral-bouquet'];
+    return [];
   });
 
   useEffect(() => {
@@ -137,8 +89,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.warn('Failed to save wishlist to localStorage', e);
     }
   }, [wishlist]);
-  const [promoCode, setPromoCode] = useState<string>('SRIJAN10');
-  const [discountPercentage, setDiscountPercentage] = useState<number>(10);
+
+  const [promoCode, setPromoCode] = useState<string>('');
+  const [discountPercentage, setDiscountPercentage] = useState<number>(0);
   const [promoError, setPromoError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastInfo | null>(null);
 

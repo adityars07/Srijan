@@ -16,6 +16,10 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews }) => {
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(5);
 
+  React.useEffect(() => {
+    setReviewList(reviews);
+  }, [reviews]);
+
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
     if (!author.trim() || !comment.trim()) return;
@@ -56,8 +60,9 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews }) => {
         </div>
 
         {/* Reviews Cards Grid */}
-        <div className="reviews-grid">
-          {reviewList.slice(0, 3).map((rev) => (
+        {reviewList.length > 0 ? (
+          <div className="reviews-grid">
+            {reviewList.slice(0, 3).map((rev) => (
             <div key={rev.id} className="review-card">
               <div>
                 <div className="review-stars-row">
@@ -86,7 +91,32 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews }) => {
             </div>
           ))}
         </div>
-      </div>
+      ) : (
+        <div
+          style={{
+            padding: '40px 24px',
+            textAlign: 'center',
+            backgroundColor: '#FBF9F5',
+            borderRadius: '16px',
+            border: '1px dashed #EBE4DA',
+            maxWidth: '600px',
+            margin: '0 auto',
+          }}
+        >
+          <p style={{ color: '#746D66', fontSize: '0.92rem', marginBottom: '16px' }}>
+            No collector reviews published yet. Share your experience with our artisan creations!
+          </p>
+          <button
+            className="see-all-link"
+            onClick={() => setIsModalOpen(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            <Edit3 size={14} />
+            <span>Write the First Review</span>
+          </button>
+        </div>
+      )}
+    </div>
 
       {/* Write a Review Modal */}
       {isModalOpen && (

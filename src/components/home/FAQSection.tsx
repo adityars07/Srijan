@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, ArrowUpRight } from 'lucide-react';
-import { FAQS } from '../../data/mockData';
+import { FAQS } from '../../data/faqs';
 
 interface FAQSectionProps {
   onContactClick: () => void;

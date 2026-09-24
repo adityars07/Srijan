@@ -131,6 +131,8 @@ export const api = {
 
   // Reviews
   reviews: {
+    getAll: () =>
+      request<{ reviews: any[] }>('/reviews'),
     getByProduct: (productId: string) =>
       request<{ reviews: any[] }>(`/reviews/product/${productId}`),
     submit: (reviewData: any) =>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowUpRight, Clock } from 'lucide-react';
-import { ARTICLES } from '../../data/mockData';
+import { ARTICLES } from '../../data/articles';
 import type { ArticleItem } from '../../types';
 
 interface ArticlesSectionProps {

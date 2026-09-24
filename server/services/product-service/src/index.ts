@@ -311,6 +311,20 @@ productRouter.delete('/:id', async (req: Request, res: Response): Promise<void> 
 // ================= REVIEWS ROUTER =================
 const reviewRouter = Router();
 
+reviewRouter.get('/', async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const reviews = await prisma.review.findMany({
+      where: { isApproved: true },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    });
+    res.json({ reviews });
+  } catch (err: any) {
+    console.error('Get all reviews error:', err);
+    res.status(500).json({ error: 'Failed to fetch reviews.' });
+  }
+});
+
 reviewRouter.get('/product/:productId', async (req: Request, res: Response): Promise<void> => {
   try {
     const { productId } = req.params;

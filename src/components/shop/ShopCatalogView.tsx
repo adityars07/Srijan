@@ -22,7 +22,7 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
   onNavigateHome,
 }) => {
   const { currency } = useCurrency();
-  const { isWishlisted, wishlistCount, openWishlist } = useCart();
+  const { isWishlisted, wishlistCount } = useCart();
   const [onlyWishlist, setOnlyWishlist] = useState(false);
 
   // Filter and sort products
@@ -337,24 +337,28 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
                 }}
               >
                 <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '8px' }}>
-                  No handcrafted pieces match this filter
+                  {products.length === 0 ? 'Catalog Ready For New Creations' : 'No handcrafted pieces match this filter'}
                 </h4>
                 <p style={{ color: '#746D66', fontSize: '0.9rem', marginBottom: '20px' }}>
-                  Try resetting your price or category selections to explore all studio works.
+                  {products.length === 0
+                    ? 'Your online store is clean and ready. Add real products through the Admin Dashboard to stock your shop!'
+                    : 'Try resetting your price, wishlist or category selections to explore all studio works.'}
                 </p>
-                <button
-                  onClick={handleClearAll}
-                  style={{
-                    padding: '10px 24px',
-                    borderRadius: '9999px',
-                    backgroundColor: '#2B2523',
-                    color: 'white',
-                    fontWeight: 600,
-                    fontSize: '0.88rem',
-                  }}
-                >
-                  Reset All Filters
-                </button>
+                {products.length > 0 && (
+                  <button
+                    onClick={handleClearAll}
+                    style={{
+                      padding: '10px 24px',
+                      borderRadius: '9999px',
+                      backgroundColor: '#2B2523',
+                      color: 'white',
+                      fontWeight: 600,
+                      fontSize: '0.88rem',
+                    }}
+                  >
+                    Reset All Filters
+                  </button>
+                )}
               </div>
             )}
           </div>
