@@ -12,7 +12,7 @@ import {
   ArrowLeft,
   X,
   ShieldCheck,
-  Sparkles
+  Trash2
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -28,8 +28,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
   const { formatPrice } = useCurrency();
   const { showToast } = useCart();
 
-  const [adminEmail, setAdminEmail] = useState('admin@srijan.com');
-  const [adminPassword, setAdminPassword] = useState('ArtisanRakhi2026!');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
@@ -65,7 +65,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
   const [newProdMaterial, setNewProdMaterial] = useState('');
   const [newProdDescription, setNewProdDescription] = useState('');
   const [newProdImageUrl, setNewProdImageUrl] = useState('');
-  const [newProdStock, setNewProdStock] = useState('10');
+  const [newProdStock, setNewProdStock] = useState('');
   const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
 
   // Edit stock/price modal
@@ -148,15 +148,33 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
   const handleSaveProductEdit = async () => {
     if (!editingProduct) return;
     try {
+      const stock = isNaN(parseInt(editStock, 10)) ? 0 : parseInt(editStock, 10);
       await api.products.update(editingProduct.id, {
         priceINR: parseFloat(editPriceINR),
-        stockQuantity: parseInt(editStock, 10),
+        stockQuantity: stock,
+        inStock: stock > 0,
       });
-      showToast('Product updated successfully!');
+      showToast(stock === 0 ? 'Product updated & marked as Out of Stock (0 units).' : 'Product updated successfully!');
       setEditingProduct(null);
       loadData();
     } catch (err: any) {
       showToast(err.message || 'Failed to update product');
+    }
+  };
+
+  const handleDeleteProduct = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete "${name}" from the catalog?`)) {
+      return;
+    }
+    try {
+      await api.products.delete(id);
+      showToast(`"${name}" was deleted successfully.`);
+      if (editingProduct?.id === id) {
+        setEditingProduct(null);
+      }
+      loadData();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to delete product');
     }
   };
 
@@ -216,51 +234,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
           </h2>
 
           <p style={{ color: '#746D66', fontSize: '0.92rem', lineHeight: '1.5', marginBottom: '28px' }}>
-            Enter Master Artisan credentials to manage your product catalog, real-time inventory, bespoke commissions, and orders.
+            Sign in with your admin credentials to manage products, inventory, commissions, and orders.
           </p>
-
-          {/* Quick 1-Click Login Button */}
-          <button
-            type="button"
-            onClick={() => handleAdminLogin(undefined, 'admin@srijan.com', 'ArtisanRakhi2026!')}
-            disabled={isLoggingIn}
-            style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              padding: '14px',
-              borderRadius: '12px',
-              backgroundColor: '#C48B71',
-              color: '#FFFFFF',
-              border: 'none',
-              fontSize: '0.95rem',
-              fontWeight: 600,
-              cursor: isLoggingIn ? 'not-allowed' : 'pointer',
-              boxShadow: '0 4px 14px rgba(196, 139, 113, 0.35)',
-              transition: 'all 0.2s ease',
-              marginBottom: '22px',
-            }}
-          >
-            <Sparkles size={18} />
-            <span>{isLoggingIn ? 'Authenticating...' : '⚡ 1-Click Master Artisan Login'}</span>
-          </button>
-
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              margin: '18px 0',
-              color: '#A0978E',
-              fontSize: '0.8rem',
-            }}
-          >
-            <div style={{ flex: 1, height: '1px', backgroundColor: '#EBE5DC' }} />
-            <span>or sign in manually</span>
-            <div style={{ flex: 1, height: '1px', backgroundColor: '#EBE5DC' }} />
-          </div>
 
           {loginError && (
             <div
@@ -293,6 +268,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                 type="email"
                 value={adminEmail}
                 onChange={(e) => setAdminEmail(e.target.value)}
+                placeholder="admin@srijan.com"
                 required
                 style={{
                   width: '100%',
@@ -318,6 +294,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                 type="password"
                 value={adminPassword}
                 onChange={(e) => setAdminPassword(e.target.value)}
+                placeholder="••••••••••••"
                 required
                 style={{
                   width: '100%',
@@ -727,32 +704,75 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                       ₹{p.priceINR} / ${p.priceUSD}
                     </td>
                     <td style={{ padding: '10px 16px' }}>
-                      <span style={{ color: p.stockQuantity <= 15 ? '#C0392B' : '#2E7D32', fontWeight: 600 }}>
-                        {p.stockQuantity} units
-                      </span>
+                      {p.stockQuantity === 0 || !p.inStock ? (
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            color: '#9B1C1C',
+                            backgroundColor: '#FDF2F2',
+                            padding: '3px 8px',
+                            borderRadius: '9999px',
+                            fontSize: '0.74rem',
+                            fontWeight: 700,
+                            border: '1px solid #F8B4B4',
+                          }}
+                        >
+                          ● Out of Stock (0 units)
+                        </span>
+                      ) : (
+                        <span style={{ color: p.stockQuantity <= 15 ? '#E67E22' : '#2E7D32', fontWeight: 600 }}>
+                          {p.stockQuantity} units left
+                        </span>
+                      )}
                     </td>
                     <td style={{ padding: '10px 16px' }}>
-                      <button
-                        onClick={() => {
-                          setEditingProduct(p);
-                          setEditPriceINR(String(p.priceINR));
-                          setEditStock(String(p.stockQuantity));
-                        }}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          background: '#FFF',
-                          border: '1px solid #EBE4DA',
-                          borderRadius: '6px',
-                          padding: '5px 10px',
-                          fontSize: '0.78rem',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <Edit2 size={13} />
-                        <span>Edit</span>
-                      </button>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button
+                          onClick={() => {
+                            setEditingProduct(p);
+                            setEditPriceINR(String(p.priceINR));
+                            setEditStock(String(p.stockQuantity));
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            background: '#FFF',
+                            border: '1px solid #EBE4DA',
+                            borderRadius: '6px',
+                            padding: '5px 10px',
+                            fontSize: '0.78rem',
+                            cursor: 'pointer',
+                          }}
+                          title="Edit product price & inventory"
+                        >
+                          <Edit2 size={13} />
+                          <span>Edit</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteProduct(p.id, p.name)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            background: '#FDF2F2',
+                            color: '#9B1C1C',
+                            border: '1px solid #F8B4B4',
+                            borderRadius: '6px',
+                            padding: '5px 10px',
+                            fontSize: '0.78rem',
+                            cursor: 'pointer',
+                            fontWeight: 600,
+                          }}
+                          title={`Permanently delete "${p.name}"`}
+                        >
+                          <Trash2 size={13} />
+                          <span>Delete</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -1059,9 +1079,12 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Stock Quantity</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>
+                  Stock Quantity <span style={{ fontSize: '0.74rem', color: '#8C827A', fontWeight: 400 }}>(Set to 0 to mark as Out of Stock)</span>
+                </label>
                 <input
                   type="number"
+                  min="0"
                   value={editStock}
                   onChange={(e) => setEditStock(e.target.value)}
                   style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
@@ -1071,7 +1094,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
               <button
                 onClick={handleSaveProductEdit}
                 style={{
-                  marginTop: '8px',
+                  marginTop: '6px',
                   padding: '10px',
                   borderRadius: '9999px',
                   background: '#2B2523',
@@ -1082,6 +1105,29 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                 }}
               >
                 Save Changes
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleDeleteProduct(editingProduct.id, editingProduct.name)}
+                style={{
+                  padding: '10px',
+                  borderRadius: '9999px',
+                  background: '#FDF2F2',
+                  color: '#9B1C1C',
+                  border: '1px solid #F8B4B4',
+                  fontWeight: 600,
+                  fontSize: '0.84rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <Trash2 size={14} />
+                <span>Delete This Product</span>
               </button>
             </div>
           </div>

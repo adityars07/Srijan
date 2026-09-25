@@ -15,8 +15,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
 
   const wishlisted = isWishlisted(product.id, (product as any).slug);
 
+  const isOutOfStock = product.inStock === false || (product.stockQuantity !== undefined && product.stockQuantity <= 0);
+
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isOutOfStock) return;
     addToCart(product, product.colors[0], product.defaultSize, 1);
   };
 
@@ -26,19 +29,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
   };
 
   return (
-    <div className="product-card" onClick={() => onSelect(product)}>
+    <div className={`product-card ${isOutOfStock ? 'out-of-stock' : ''}`} onClick={() => onSelect(product)}>
       {/* Product Image Frame */}
       <div className="product-image-wrap">
         <img
           src={product.images[0]}
           alt={product.name}
           loading="lazy"
+          style={isOutOfStock ? { filter: 'grayscale(25%)', opacity: 0.88 } : undefined}
         />
 
-        {/* Badge if available */}
-        {product.badge && (
+        {/* Badge: Out of Stock or custom badge */}
+        {isOutOfStock ? (
+          <span
+            className="card-badge"
+            style={{
+              backgroundColor: '#9B1C1C',
+              color: '#FFFFFF',
+              fontWeight: 700,
+              letterSpacing: '0.04em',
+            }}
+          >
+            Out of Stock
+          </span>
+        ) : product.badge ? (
           <span className="card-badge">{product.badge}</span>
-        )}
+        ) : null}
 
         {/* Wishlist Heart */}
         <button
@@ -50,15 +66,35 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
           <Heart size={16} fill={wishlisted ? '#D94343' : 'none'} stroke={wishlisted ? '#D94343' : 'currentColor'} />
         </button>
 
-        {/* Quick Cart Button */}
-        <button
-          className="quick-cart-btn"
-          onClick={handleQuickAdd}
-          title="Quick add to cart"
-          aria-label="Quick Add"
-        >
-          <ShoppingBag size={17} />
-        </button>
+        {/* Quick Cart Button or Sold Out Indicator */}
+        {!isOutOfStock ? (
+          <button
+            className="quick-cart-btn"
+            onClick={handleQuickAdd}
+            title="Quick add to cart"
+            aria-label="Quick Add"
+          >
+            <ShoppingBag size={17} />
+          </button>
+        ) : (
+          <span
+            style={{
+              position: 'absolute',
+              bottom: '10px',
+              right: '10px',
+              backgroundColor: 'rgba(43, 37, 35, 0.85)',
+              color: '#FBF9F5',
+              fontSize: '0.72rem',
+              fontWeight: 600,
+              padding: '4px 10px',
+              borderRadius: '9999px',
+              backdropFilter: 'blur(4px)',
+              pointerEvents: 'none',
+            }}
+          >
+            Sold Out
+          </span>
+        )}
       </div>
 
       {/* Color Swatches */}

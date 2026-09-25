@@ -41,8 +41,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   if (!product) return null;
 
   const wishlisted = isWishlisted(product.id, (product as any).slug);
+  const isOutOfStock = product.inStock === false || (product.stockQuantity !== undefined && product.stockQuantity <= 0);
 
   const handleAddToCart = () => {
+    if (isOutOfStock) {
+      showToast('This creation is currently out of stock.');
+      return;
+    }
     if (!selectedColor) return;
     addToCart(product, selectedColor, selectedSize, quantity);
   };
@@ -120,8 +125,19 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               {/* Price & SKU */}
               <div className="modal-price-status-row">
                 <span className="modal-price">{formatProductPrice(product)}</span>
-                <span className="modal-stock-tag">
-                  {product.inStock ? `In Stock • SKU: ${product.sku}` : 'Made to Order'}
+                <span
+                  className="modal-stock-tag"
+                  style={
+                    isOutOfStock
+                      ? { backgroundColor: '#FDEDEC', color: '#C0392B', borderColor: '#FADBD8', fontWeight: 600 }
+                      : undefined
+                  }
+                >
+                  {isOutOfStock
+                    ? '● Out of Stock (0 units left)'
+                    : product.inStock
+                    ? `In Stock • SKU: ${product.sku}`
+                    : 'Made to Order'}
                 </span>
               </div>
 
@@ -172,18 +188,34 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
               {/* Quantity Stepper & Add to Cart Button */}
               <div className="modal-cta-row">
-                <div className="qty-stepper" style={{ padding: '8px 16px' }}>
-                  <button className="qty-btn" onClick={() => setQuantity((q) => Math.max(1, q - 1))}>
-                    <Minus size={15} />
-                  </button>
-                  <span className="qty-val" style={{ minWidth: '24px', fontSize: '0.95rem' }}>{quantity}</span>
-                  <button className="qty-btn" onClick={() => setQuantity((q) => q + 1)}>
-                    <Plus size={15} />
-                  </button>
-                </div>
+                {!isOutOfStock ? (
+                  <div className="qty-stepper" style={{ padding: '8px 16px' }}>
+                    <button className="qty-btn" onClick={() => setQuantity((q) => Math.max(1, q - 1))}>
+                      <Minus size={15} />
+                    </button>
+                    <span className="qty-val" style={{ minWidth: '24px', fontSize: '0.95rem' }}>{quantity}</span>
+                    <button className="qty-btn" onClick={() => setQuantity((q) => q + 1)}>
+                      <Plus size={15} />
+                    </button>
+                  </div>
+                ) : null}
 
-                <button className="modal-add-cart-btn" onClick={handleAddToCart}>
-                  <span>Add to the cart</span>
+                <button
+                  className="modal-add-cart-btn"
+                  onClick={handleAddToCart}
+                  disabled={isOutOfStock}
+                  style={
+                    isOutOfStock
+                      ? {
+                          backgroundColor: '#A0978E',
+                          cursor: 'not-allowed',
+                          opacity: 0.85,
+                          flex: 1,
+                        }
+                      : undefined
+                  }
+                >
+                  <span>{isOutOfStock ? 'Sold Out (Out of Stock)' : 'Add to the cart'}</span>
                 </button>
               </div>
 

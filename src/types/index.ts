@@ -19,6 +19,7 @@ export interface Product {
   storySnippet?: string;
   material: string;
   inStock: boolean;
+  stockQuantity?: number;
   sku: string;
   colors: ProductColor[];
   sizes: string[];

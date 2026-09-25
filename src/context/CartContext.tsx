@@ -113,6 +113,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const toggleCart = () => setIsCartOpen((prev) => !prev);
 
   const addToCart = (product: Product, color: ProductColor, size: string, quantity = 1) => {
+    if (product.inStock === false || (product.stockQuantity !== undefined && product.stockQuantity <= 0)) {
+      showToast(`"${product.name}" is currently out of stock.`, 'info');
+      return;
+    }
     const itemId = `${product.id}-${color.name}-${size}`;
     setCart((prev) => {
       const existing = prev.find((item) => item.id === itemId);

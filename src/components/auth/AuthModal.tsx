@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Lock, Mail, User as UserIcon, Phone, ShieldCheck, Sparkles, ArrowRight } from 'lucide-react';
+import { X, Lock, Mail, User as UserIcon, Phone, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 
@@ -31,8 +31,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
     try {
       if (mode === 'login') {
         await login(email, password);
-        showToast('Successfully signed in! Welcome back.');
+        showToast('Welcome back! Successfully signed in.');
       } else {
+        if (!name.trim()) {
+          throw new Error('Please enter your full name.');
+        }
         await register(name, email, password, phone);
         showToast('Account created successfully! Welcome to Srijan.');
       }
@@ -45,17 +48,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
     }
   };
 
-  const handleQuickLogin = (userEmail: string, userPass: string) => {
-    setEmail(userEmail);
-    setPassword(userPass);
-    setError(null);
-  };
-
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div
         className="search-modal-container"
-        style={{ maxWidth: '480px', padding: '36px 32px', position: 'relative' }}
+        style={{ maxWidth: '440px', padding: '36px 32px', position: 'relative' }}
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -67,40 +64,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         </button>
 
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div
-            style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '50%',
-              backgroundColor: '#F4EFEA',
-              color: '#C48B71',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 12px',
-            }}
-          >
-            <Sparkles size={22} />
-          </div>
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.85rem', marginBottom: '6px' }}>
-            {mode === 'login' ? 'Welcome to Srijan' : 'Create Your Account'}
+            {mode === 'login' ? 'Welcome Back' : 'Create an Account'}
           </h3>
-          <p style={{ color: '#746D66', fontSize: '0.88rem' }}>
+          <p style={{ color: '#746D66', fontSize: '0.88rem', lineHeight: '1.5' }}>
             {mode === 'login'
               ? 'Sign in to access your orders, saved wishlists, and studio commissions.'
-              : 'Join the Srijan artisan family to personalize and order handcrafted art.'}
+              : 'Join the Srijan family to order bespoke handcrafted creations and track your deliveries.'}
           </p>
         </div>
 
-        {/* Tabs */}
+        {/* Mode Switcher Tabs */}
         <div
           style={{
             display: 'flex',
             background: '#F4EFEA',
             padding: '4px',
             borderRadius: '9999px',
-            marginBottom: '24px',
+            marginBottom: '22px',
           }}
         >
           <button
@@ -108,12 +90,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
             onClick={() => { setMode('login'); setError(null); }}
             style={{
               flex: 1,
-              padding: '8px 16px',
+              padding: '9px 16px',
               borderRadius: '9999px',
               fontSize: '0.86rem',
               fontWeight: 600,
               backgroundColor: mode === 'login' ? '#2B2523' : 'transparent',
               color: mode === 'login' ? '#FBF9F5' : '#746D66',
+              border: 'none',
+              cursor: 'pointer',
               transition: 'all 0.2s ease',
             }}
           >
@@ -124,16 +108,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
             onClick={() => { setMode('register'); setError(null); }}
             style={{
               flex: 1,
-              padding: '8px 16px',
+              padding: '9px 16px',
               borderRadius: '9999px',
               fontSize: '0.86rem',
               fontWeight: 600,
               backgroundColor: mode === 'register' ? '#2B2523' : 'transparent',
               color: mode === 'register' ? '#FBF9F5' : '#746D66',
+              border: 'none',
+              cursor: 'pointer',
               transition: 'all 0.2s ease',
             }}
           >
-            Register
+            Sign Up
           </button>
         </div>
 
@@ -175,6 +161,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                     border: '1px solid #EBE4DA',
                     fontSize: '0.9rem',
                     backgroundColor: '#FBF9F5',
+                    boxSizing: 'border-box',
                   }}
                 />
               </div>
@@ -200,6 +187,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   border: '1px solid #EBE4DA',
                   fontSize: '0.9rem',
                   backgroundColor: '#FBF9F5',
+                  boxSizing: 'border-box',
                 }}
               />
             </div>
@@ -224,6 +212,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                     border: '1px solid #EBE4DA',
                     fontSize: '0.9rem',
                     backgroundColor: '#FBF9F5',
+                    boxSizing: 'border-box',
                   }}
                 />
               </div>
@@ -239,7 +228,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
               <input
                 type="password"
                 required
-                placeholder="••••••••"
+                placeholder="••••••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{
@@ -249,6 +238,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   border: '1px solid #EBE4DA',
                   fontSize: '0.9rem',
                   backgroundColor: '#FBF9F5',
+                  boxSizing: 'border-box',
                 }}
               />
             </div>
@@ -271,65 +261,41 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
               gap: '8px',
               cursor: isSubmitting ? 'not-allowed' : 'pointer',
               opacity: isSubmitting ? 0.7 : 1,
+              border: 'none',
+              transition: 'all 0.2s ease',
             }}
           >
-            <span>{isSubmitting ? 'Verifying...' : mode === 'login' ? 'Sign In to Studio' : 'Create Account'}</span>
+            <span>{isSubmitting ? 'Processing...' : mode === 'login' ? 'Sign In to Srijan' : 'Create Account'}</span>
             <ArrowRight size={16} />
           </button>
         </form>
 
-        {/* Quick Demo Logins Helper */}
-        <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #EBE4DA' }}>
-          <div style={{ fontSize: '0.74rem', color: '#8C827A', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px', textAlign: 'center', fontWeight: 600 }}>
-            Quick Demo Accounts (1-Click Fill)
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('admin@srijan.com', 'ArtisanRakhi2026!')}
-              style={{
-                padding: '8px 10px',
-                borderRadius: '8px',
-                border: '1px solid #EBE4DA',
-                background: '#FDFBF7',
-                fontSize: '0.78rem',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-              }}
-            >
-              <ShieldCheck size={14} color="#C48B71" />
-              <div>
-                <strong style={{ display: 'block', color: '#2B2523' }}>Artisan Admin</strong>
-                <span style={{ fontSize: '0.72rem', color: '#746D66' }}>Rakhi Karn</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('demo@srijan.com', 'Customer2026!')}
-              style={{
-                padding: '8px 10px',
-                borderRadius: '8px',
-                border: '1px solid #EBE4DA',
-                background: '#FDFBF7',
-                fontSize: '0.78rem',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-              }}
-            >
-              <UserIcon size={14} color="#746D66" />
-              <div>
-                <strong style={{ display: 'block', color: '#2B2523' }}>Demo Customer</strong>
-                <span style={{ fontSize: '0.72rem', color: '#746D66' }}>Aditya Kumar</span>
-              </div>
-            </button>
-          </div>
+        <div style={{ marginTop: '18px', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.78rem', color: '#8C827A' }}>
+            {mode === 'login' ? (
+              <>
+                New customer?{' '}
+                <button
+                  type="button"
+                  onClick={() => { setMode('register'); setError(null); }}
+                  style={{ background: 'none', border: 'none', color: '#C48B71', fontWeight: 600, cursor: 'pointer', padding: 0 }}
+                >
+                  Create an account
+                </button>
+              </>
+            ) : (
+              <>
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => { setMode('login'); setError(null); }}
+                  style={{ background: 'none', border: 'none', color: '#C48B71', fontWeight: 600, cursor: 'pointer', padding: 0 }}
+                >
+                  Sign In
+                </button>
+              </>
+            )}
+          </p>
         </div>
       </div>
     </div>

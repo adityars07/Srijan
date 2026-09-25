@@ -246,80 +246,84 @@ export const Header: React.FC<HeaderProps> = ({
                     <div style={{ fontWeight: 600, fontSize: '0.88rem', color: '#2B2523' }}>{user?.name}</div>
                     <div style={{ fontSize: '0.74rem', color: '#746D66' }}>{user?.email}</div>
                     <span style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: '#F4EFEA', color: '#C48B71', fontWeight: 600, display: 'inline-block', marginTop: '4px' }}>
-                      {user?.role === 'ADMIN' ? 'Master Artisan' : 'Customer'}
+                      {isAdmin ? 'Master Artisan (Admin)' : 'Customer'}
                     </span>
                   </div>
 
-                  {isAdmin && (
+                  {isAdmin ? (
                     <button
                       onClick={() => { onNavigate('admin'); setUserDropdownOpen(false); }}
                       style={{
                         width: '100%',
                         textAlign: 'left',
-                        padding: '8px 10px',
-                        borderRadius: '6px',
+                        padding: '9px 11px',
+                        borderRadius: '8px',
                         border: 'none',
-                        background: 'transparent',
-                        fontSize: '0.84rem',
+                        background: '#FAF7F2',
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '8px',
                         color: '#2B2523',
+                        transition: 'background 0.2s ease',
                       }}
                       onMouseEnter={(e) => (e.currentTarget.style.background = '#F4EFEA')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = '#FAF7F2')}
                     >
-                      <ShieldCheck size={14} color="#C48B71" />
+                      <ShieldCheck size={15} color="#C48B71" />
                       <span>Studio Admin Dashboard</span>
                     </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => { openWishlist(); setUserDropdownOpen(false); }}
+                        style={{
+                          width: '100%',
+                          textAlign: 'left',
+                          padding: '8px 10px',
+                          borderRadius: '6px',
+                          border: 'none',
+                          background: 'transparent',
+                          fontSize: '0.84rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          color: '#2B2523',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = '#F4EFEA')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        <Heart size={14} color="#C48B71" />
+                        <span>My Saved Wishlist ({wishlistCount})</span>
+                      </button>
+
+                      <button
+                        onClick={() => { onNavigate('tracking'); setUserDropdownOpen(false); }}
+                        style={{
+                          width: '100%',
+                          textAlign: 'left',
+                          padding: '8px 10px',
+                          borderRadius: '6px',
+                          border: 'none',
+                          background: 'transparent',
+                          fontSize: '0.84rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          color: '#2B2523',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = '#F4EFEA')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        <Truck size={14} />
+                        <span>Track My Orders</span>
+                      </button>
+                    </>
                   )}
-
-                  <button
-                    onClick={() => { openWishlist(); setUserDropdownOpen(false); }}
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      padding: '8px 10px',
-                      borderRadius: '6px',
-                      border: 'none',
-                      background: 'transparent',
-                      fontSize: '0.84rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      color: '#2B2523',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = '#F4EFEA')}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    <Heart size={14} color="#C48B71" />
-                    <span>My Saved Wishlist ({wishlistCount})</span>
-                  </button>
-
-                  <button
-                    onClick={() => { onNavigate('tracking'); setUserDropdownOpen(false); }}
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      padding: '8px 10px',
-                      borderRadius: '6px',
-                      border: 'none',
-                      background: 'transparent',
-                      fontSize: '0.84rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      color: '#2B2523',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = '#F4EFEA')}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    <Truck size={14} />
-                    <span>Track My Orders</span>
-                  </button>
 
                   <button
                     onClick={() => { logout(); setUserDropdownOpen(false); }}
