@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 5002;
 const prisma = new PrismaClient();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 
 // Health Check
 app.get('/health', (_req: Request, res: Response) => {
