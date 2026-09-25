@@ -27,15 +27,15 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
   const { currency, formatPrice } = useCurrency();
 
   // Form states
-  const [email, setEmail] = useState('aditya.kumar@example.com');
+  const [email, setEmail] = useState('');
   const [country, setCountry] = useState('India');
-  const [firstName, setFirstName] = useState('Aditya');
-  const [lastName, setLastName] = useState('Kumar');
-  const [address, setAddress] = useState('Sector 42, Golf Course Road');
-  const [apartment, setApartment] = useState('Villa 14B');
-  const [postalCode, setPostalCode] = useState('122002');
-  const [city, setCity] = useState('Gurugram');
-  const [phone, setPhone] = useState('+91 98765 43210');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [address, setAddress] = useState('');
+  const [apartment, setApartment] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [city, setCity] = useState('');
+  const [phone, setPhone] = useState('');
   const [shippingMethod, setShippingMethod] = useState<'standard' | 'express' | 'pickup'>('express');
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi' | 'bank'>('upi');
   const [couponCode, setCouponCode] = useState('');

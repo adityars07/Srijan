@@ -602,8 +602,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                       #{o.orderNumber}
                     </td>
                     <td style={{ padding: '14px 16px' }}>
-                      <div>{o.guestName || 'Aditya Kumar'}</div>
-                      <div style={{ fontSize: '0.76rem', color: '#746D66' }}>{o.guestEmail || 'customer@srijan.com'}</div>
+                      <div>{o.guestName || 'Customer'}</div>
+                      <div style={{ fontSize: '0.76rem', color: '#746D66' }}>{o.guestEmail || '—'}</div>
                     </td>
                     <td style={{ padding: '14px 16px' }}>
                       {o.items?.map((item: any) => (
