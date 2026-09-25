@@ -82,8 +82,8 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
               {!videoError ? (
                 <video
                   ref={videoRef}
-                  src="/videos/product-video.mp4"
-                  poster="/images/sculptural_vase.jpg"
+                  src="/videos/crochet-rose-bouquet.mp4"
+                  poster="/images/crochet-artisan-floral-bouquet.jpg"
                   autoPlay
                   loop
                   muted
@@ -93,8 +93,8 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
                 />
               ) : (
                 <img
-                  src={tile1?.images?.[0] || '/images/sculptural_vase.jpg'}
-                  alt={tile1?.name || 'Sculptural handcrafted vase'}
+                  src={tile1?.images?.[0] || '/images/crochet-artisan-floral-bouquet.jpg'}
+                  alt={tile1?.name || 'Handcrafted Crochet Bouquet'}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               )}
