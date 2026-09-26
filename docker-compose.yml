@@ -1,6 +1,17 @@
 version: '3.8'
 
 services:
+  # 0. Redis In-Memory Cache & Ephemeral Store
+  redis:
+    image: redis:7-alpine
+    container_name: srijan-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
   # 1. Authentication Service
   auth-service:
     build:
@@ -13,6 +24,9 @@ services:
       - PORT=5001
       - DATABASE_URL=file:./auth.db
       - JWT_SECRET=srijan_artisan_secret_key_2026_super_secure_jwt
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
     volumes:
       - auth-db-data:/app/prisma
 
@@ -27,6 +41,9 @@ services:
     environment:
       - PORT=5002
       - DATABASE_URL=file:./products.db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
     volumes:
       - product-db-data:/app/prisma
 
@@ -83,6 +100,7 @@ services:
       - commission-service
 
 volumes:
+  redis-data:
   auth-db-data:
   product-db-data:
   order-db-data:

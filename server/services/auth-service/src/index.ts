@@ -6,6 +6,14 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
 import { sendOtpEmail } from './mailer.js';
+import {
+  isRedisAvailable,
+  getJson,
+  setJson,
+  set as redisSet,
+  del as redisDel,
+  getTtl as redisGetTtl,
+} from './redisClient.js';
 
 // Initialize environment variables from .env
 dotenv.config();
@@ -20,9 +28,14 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 
-// Health Check
+// Health Check with Redis Connectivity Status
 app.get('/health', (_req: Request, res: Response) => {
-  res.json({ service: 'auth-service', status: 'healthy', port: PORT });
+  res.json({
+    service: 'auth-service',
+    status: 'healthy',
+    port: PORT,
+    redisConnected: isRedisAvailable(),
+  });
 });
 
 // Register
@@ -133,6 +146,21 @@ app.post('/login', async (req: Request, res: Response): Promise<void> => {
       },
     });
 
+    // Store in Redis with 5-minute (300s) TTL & set 60s resend cooldown
+    if (isRedisAvailable()) {
+      await setJson(
+        `srijan:auth:otp:${cleanEmail}`,
+        {
+          verificationId: otpRecord.id,
+          otpHash,
+          attempts: 0,
+          expiresAt: Date.now() + 5 * 60 * 1000,
+        },
+        300
+      );
+      await redisSet(`srijan:auth:cooldown:${cleanEmail}`, '1', 60);
+    }
+
     // Real email dispatch
     await sendOtpEmail(cleanEmail, user.name, otp);
 
@@ -168,44 +196,82 @@ app.post('/verify-otp', async (req: Request, res: Response): Promise<void> => {
     const cleanEmail = email.toLowerCase().trim();
     const cleanOtp = String(otp).trim();
 
-    const record = await prisma.otpVerification.findUnique({
+    // 1. Try fast verification via Redis first
+    let verifiedViaRedis = false;
+    if (isRedisAvailable()) {
+      const redisOtp = await getJson<any>(`srijan:auth:otp:${cleanEmail}`);
+      if (redisOtp && redisOtp.verificationId === verificationId) {
+        if (redisOtp.attempts >= 3) {
+          res.status(400).json({ error: 'Maximum verification attempts exceeded. Please request a new code.' });
+          return;
+        }
+
+        const isMatch = await bcrypt.compare(cleanOtp, redisOtp.otpHash);
+        if (!isMatch) {
+          const newAttempts = (redisOtp.attempts || 0) + 1;
+          const ttl = await redisGetTtl(`srijan:auth:otp:${cleanEmail}`);
+          await setJson(
+            `srijan:auth:otp:${cleanEmail}`,
+            { ...redisOtp, attempts: newAttempts },
+            ttl > 0 ? ttl : 300
+          );
+          const remaining = 3 - newAttempts;
+          res.status(401).json({
+            error: remaining > 0
+              ? `Invalid verification code. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`
+              : 'Invalid verification code. Maximum attempts reached. Please request a new code.',
+          });
+          return;
+        }
+
+        // Successfully matched in Redis: clean up session
+        await redisDel(`srijan:auth:otp:${cleanEmail}`);
+        await redisDel(`srijan:auth:cooldown:${cleanEmail}`);
+        verifiedViaRedis = true;
+      }
+    }
+
+    // 2. Fallback to SQLite OtpVerification table if Redis was bypassed
+    if (!verifiedViaRedis) {
+      const record = await prisma.otpVerification.findUnique({
+        where: { id: verificationId },
+      });
+
+      if (!record || record.email !== cleanEmail || record.verified) {
+        res.status(400).json({ error: 'Invalid or expired verification session. Please sign in again.' });
+        return;
+      }
+
+      if (new Date() > record.expiresAt) {
+        res.status(400).json({ error: 'Verification code has expired. Please request a new code.' });
+        return;
+      }
+
+      if (record.attempts >= 3) {
+        res.status(400).json({ error: 'Maximum verification attempts exceeded. Please request a new code.' });
+        return;
+      }
+
+      const isMatch = await bcrypt.compare(cleanOtp, record.otpHash);
+      if (!isMatch) {
+        const newAttempts = record.attempts + 1;
+        await prisma.otpVerification.update({
+          where: { id: record.id },
+          data: { attempts: newAttempts },
+        });
+        const remaining = 3 - newAttempts;
+        res.status(401).json({
+          error: remaining > 0
+            ? `Invalid verification code. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`
+            : 'Invalid verification code. Maximum attempts reached. Please request a new code.',
+        });
+        return;
+      }
+    }
+
+    // Mark OTP record as verified in database
+    await prisma.otpVerification.updateMany({
       where: { id: verificationId },
-    });
-
-    if (!record || record.email !== cleanEmail || record.verified) {
-      res.status(400).json({ error: 'Invalid or expired verification session. Please sign in again.' });
-      return;
-    }
-
-    if (new Date() > record.expiresAt) {
-      res.status(400).json({ error: 'Verification code has expired. Please request a new code.' });
-      return;
-    }
-
-    if (record.attempts >= 3) {
-      res.status(400).json({ error: 'Maximum verification attempts exceeded. Please request a new code.' });
-      return;
-    }
-
-    const isMatch = await bcrypt.compare(cleanOtp, record.otpHash);
-    if (!isMatch) {
-      const newAttempts = record.attempts + 1;
-      await prisma.otpVerification.update({
-        where: { id: record.id },
-        data: { attempts: newAttempts },
-      });
-      const remaining = 3 - newAttempts;
-      res.status(401).json({
-        error: remaining > 0
-          ? `Invalid verification code. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`
-          : 'Invalid verification code. Maximum attempts reached. Please request a new code.',
-      });
-      return;
-    }
-
-    // Mark OTP record as verified
-    await prisma.otpVerification.update({
-      where: { id: record.id },
       data: { verified: true },
     });
 
@@ -253,17 +319,25 @@ app.post('/resend-otp', async (req: Request, res: Response): Promise<void> => {
     }
 
     // Rate-limiting check: enforce 60-second cooldown between dispatches
-    const latest = await prisma.otpVerification.findFirst({
-      where: { email: cleanEmail, purpose: 'CUSTOMER_LOGIN' },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    if (latest) {
-      const elapsedMs = Date.now() - latest.createdAt.getTime();
-      if (elapsedMs < 60 * 1000) {
-        const waitSec = Math.ceil((60 * 1000 - elapsedMs) / 1000);
-        res.status(429).json({ error: `Please wait ${waitSec} seconds before requesting a new code.` });
+    if (isRedisAvailable()) {
+      const remainingTtl = await redisGetTtl(`srijan:auth:cooldown:${cleanEmail}`);
+      if (remainingTtl > 0) {
+        res.status(429).json({ error: `Please wait ${remainingTtl} seconds before requesting a new code.` });
         return;
+      }
+    } else {
+      const latest = await prisma.otpVerification.findFirst({
+        where: { email: cleanEmail, purpose: 'CUSTOMER_LOGIN' },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      if (latest) {
+        const elapsedMs = Date.now() - latest.createdAt.getTime();
+        if (elapsedMs < 60 * 1000) {
+          const waitSec = Math.ceil((60 * 1000 - elapsedMs) / 1000);
+          res.status(429).json({ error: `Please wait ${waitSec} seconds before requesting a new code.` });
+          return;
+        }
       }
     }
 
@@ -283,6 +357,21 @@ app.post('/resend-otp', async (req: Request, res: Response): Promise<void> => {
         expiresAt: new Date(Date.now() + 5 * 60 * 1000),
       },
     });
+
+    // Store in Redis with 5-min TTL and set 60s cooldown
+    if (isRedisAvailable()) {
+      await setJson(
+        `srijan:auth:otp:${cleanEmail}`,
+        {
+          verificationId: newRecord.id,
+          otpHash,
+          attempts: 0,
+          expiresAt: Date.now() + 5 * 60 * 1000,
+        },
+        300
+      );
+      await redisSet(`srijan:auth:cooldown:${cleanEmail}`, '1', 60);
+    }
 
     await sendOtpEmail(cleanEmail, user.name, otp);
     const hasSmtp = Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);

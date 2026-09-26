@@ -2,6 +2,7 @@ import express, { Request, Response, Router } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import { getJson, setJson, delPattern, isRedisAvailable } from './redisClient.js';
 
 dotenv.config();
 
@@ -12,9 +13,33 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
-// Health Check
+// Helper: Stable cache key generator for query parameters
+function getCatalogCacheKey(query: Record<string, any>): string {
+  const keys = Object.keys(query).sort();
+  const normalized = keys.map((k) => `${k}=${String(query[k])}`).join('&');
+  return `srijan:prod:list:${normalized || 'default'}`;
+}
+
+// Helper: Invalidate all product-related cache keys on mutation
+async function invalidateProductCache(): Promise<void> {
+  try {
+    const deletedCount = await delPattern('srijan:prod:*');
+    if (deletedCount > 0) {
+      console.log(`🧹 [Product Cache] Invalidation evicted ${deletedCount} cached keys.`);
+    }
+  } catch (err: any) {
+    console.warn('⚠️ [Product Cache] Invalidation warning:', err.message);
+  }
+}
+
+// Health Check with Redis Connectivity Status
 app.get('/health', (_req: Request, res: Response) => {
-  res.json({ service: 'product-service', status: 'healthy', port: PORT });
+  res.json({
+    service: 'product-service',
+    status: 'healthy',
+    port: PORT,
+    redisConnected: isRedisAvailable(),
+  });
 });
 
 // Product Router
@@ -23,6 +48,14 @@ const productRouter = Router();
 // GET / or /products - List all products with filtering, search, sorting
 productRouter.get('/', async (req: Request, res: Response): Promise<void> => {
   try {
+    const cacheKey = getCatalogCacheKey(req.query);
+    const cachedData = await getJson<any>(cacheKey);
+
+    if (cachedData) {
+      res.setHeader('X-Cache', 'HIT');
+      res.json(cachedData);
+      return;
+    }
     const {
       category,
       collection,
@@ -113,17 +146,31 @@ productRouter.get('/', async (req: Request, res: Response): Promise<void> => {
       sizes: p.sizes.map((s) => s.sizeName),
     }));
 
-    res.json({ total, products: formattedProducts });
+    const responsePayload = { total, products: formattedProducts };
+
+    // Cache the listing for 10 minutes (600s)
+    await setJson(cacheKey, responsePayload, 600);
+
+    res.setHeader('X-Cache', 'MISS');
+    res.json(responsePayload);
   } catch (err: any) {
     console.error('Fetch products error:', err);
     res.status(500).json({ error: 'Failed to retrieve products.' });
   }
 });
 
-// GET /:idOrSlug - Single product
+// GET /:idOrSlug - Single product with Redis detail caching
 productRouter.get('/:idOrSlug', async (req: Request, res: Response): Promise<void> => {
   try {
     const { idOrSlug } = req.params;
+    const cacheKey = `srijan:prod:item:${idOrSlug}`;
+    const cachedItem = await getJson<any>(cacheKey);
+
+    if (cachedItem) {
+      res.setHeader('X-Cache', 'HIT');
+      res.json(cachedItem);
+      return;
+    }
 
     const product = await prisma.product.findFirst({
       where: {
@@ -153,7 +200,13 @@ productRouter.get('/:idOrSlug', async (req: Request, res: Response): Promise<voi
       sizes: product.sizes.map((s) => s.sizeName),
     };
 
-    res.json({ product: formattedProduct });
+    const responsePayload = { product: formattedProduct };
+
+    // Cache product detail for 30 minutes (1800s)
+    await setJson(cacheKey, responsePayload, 1800);
+
+    res.setHeader('X-Cache', 'MISS');
+    res.json(responsePayload);
   } catch (err: any) {
     console.error('Fetch single product error:', err);
     res.status(500).json({ error: 'Failed to retrieve product.' });
@@ -237,6 +290,9 @@ productRouter.post('/', async (req: Request, res: Response): Promise<void> => {
       },
     });
 
+    // Invalidate product catalog cache
+    await invalidateProductCache();
+
     res.status(201).json({ message: 'Product created successfully!', product });
   } catch (err: any) {
     console.error('Create product error:', err);
@@ -289,6 +345,9 @@ productRouter.put('/:id', async (req: Request, res: Response): Promise<void> => 
       },
     });
 
+    // Invalidate product catalog cache
+    await invalidateProductCache();
+
     res.json({ message: 'Product updated successfully!', product: updated });
   } catch (err: any) {
     console.error('Update product error:', err);
@@ -301,6 +360,10 @@ productRouter.delete('/:id', async (req: Request, res: Response): Promise<void> 
   try {
     const { id } = req.params;
     await prisma.product.delete({ where: { id } });
+
+    // Invalidate product catalog cache
+    await invalidateProductCache();
+
     res.json({ message: 'Product deleted successfully.' });
   } catch (err: any) {
     console.error('Delete product error:', err);
@@ -373,6 +436,9 @@ reviewRouter.post('/', async (req: Request, res: Response): Promise<void> => {
         reviewCount: stats._count.id,
       },
     });
+
+    // Invalidate product cache so updated rating/review is reflected
+    await invalidateProductCache();
 
     res.status(201).json({ message: 'Review submitted successfully!', review });
   } catch (err: any) {
@@ -472,12 +538,14 @@ app.get('/metrics', async (_req: Request, res: Response): Promise<void> => {
       }),
     ]);
 
-    res.json({
+    const metricsData = {
       totalProducts,
       outOfStock,
       categoriesCount: categories.length,
       categoryBreakdown: categories,
-    });
+    };
+
+    res.json(metricsData);
   } catch (err: any) {
     console.error('Product metrics error:', err);
     res.status(500).json({ error: 'Failed to fetch product metrics.' });
