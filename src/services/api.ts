@@ -33,9 +33,29 @@ export const api = {
   // Authentication
   auth: {
     login: (credentials: { email: string; password: string }) =>
-      request<{ user: any; token: string; message: string }>('/auth/login', {
+      request<{
+        user?: any;
+        token?: string;
+        message: string;
+        requiresOtp?: boolean;
+        verificationId?: string;
+        email?: string;
+        maskedEmail?: string;
+        devOtp?: string;
+        smtpConfigured?: boolean;
+      }>('/auth/login', {
         method: 'POST',
         body: JSON.stringify(credentials),
+      }),
+    verifyOtp: (payload: { email: string; otp: string; verificationId: string }) =>
+      request<{ user: any; token: string; message: string }>('/auth/verify-otp', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    resendOtp: (payload: { email: string; verificationId?: string }) =>
+      request<{ message: string; verificationId: string; devOtp?: string; smtpConfigured?: boolean }>('/auth/resend-otp', {
+        method: 'POST',
+        body: JSON.stringify(payload),
       }),
     register: (userData: { name: string; email: string; password: string; phone?: string }) =>
       request<{ user: any; token: string; message: string }>('/auth/register', {

@@ -21,7 +21,18 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{
+    requiresOtp?: boolean;
+    verificationId?: string;
+    email?: string;
+    maskedEmail?: string;
+    devOtp?: string;
+    smtpConfigured?: boolean;
+    user?: any;
+    token?: string;
+  }>;
+  verifyOtp: (email: string, otp: string, verificationId: string) => Promise<any>;
+  resendOtp: (email: string, verificationId?: string) => Promise<any>;
   register: (name: string, email: string, password: string, phone?: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -59,9 +70,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string) => {
     const res = await api.auth.login({ email, password });
-    localStorage.setItem('srijan_token', res.token);
-    setToken(res.token);
-    setUser(res.user);
+    if (res.requiresOtp) {
+      return {
+        requiresOtp: true,
+        verificationId: res.verificationId,
+        email: res.email,
+        maskedEmail: res.maskedEmail,
+        devOtp: res.devOtp,
+        smtpConfigured: res.smtpConfigured,
+      };
+    }
+    if (res.token && res.user) {
+      localStorage.setItem('srijan_token', res.token);
+      setToken(res.token);
+      setUser(res.user);
+    }
+    return { requiresOtp: false, user: res.user, token: res.token };
+  };
+
+  const verifyOtp = async (email: string, otp: string, verificationId: string) => {
+    const res = await api.auth.verifyOtp({ email, otp, verificationId });
+    if (res.token && res.user) {
+      localStorage.setItem('srijan_token', res.token);
+      setToken(res.token);
+      setUser(res.user);
+    }
+    return res;
+  };
+
+  const resendOtp = async (email: string, verificationId?: string) => {
+    return await api.auth.resendOtp({ email, verificationId });
   };
 
   const register = async (name: string, email: string, password: string, phone?: string) => {
@@ -86,6 +124,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isAdmin: user?.role === 'ADMIN',
         isLoading,
         login,
+        verifyOtp,
+        resendOtp,
         register,
         logout,
         refreshUser,
