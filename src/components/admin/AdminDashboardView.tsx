@@ -70,6 +70,8 @@ const getCategoryTrackingPrefix = (cat: string): string => {
     'Ceramics & Mugs': 'CER',
     'Plates & Bowls': 'PLB',
     'Home Decor': 'DEC',
+    'Lipan': 'LIP',
+    'Keychain': 'KEY',
   };
   return map[cat] || 'ART';
 };
@@ -119,7 +121,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
   const [newProdPriceINR, setNewProdPriceINR] = useState('');
   const [newProdPriceUSD, setNewProdPriceUSD] = useState('');
   const [newProdSku, setNewProdSku] = useState(() => generateNewTrackingSku('Crochet'));
-  const [newProdMaterial, setNewProdMaterial] = useState('');
+
   const [newProdDescription, setNewProdDescription] = useState('');
   const [newProdImages, setNewProdImages] = useState<string[]>([]);
   const [newProdUrlInput, setNewProdUrlInput] = useState('');
@@ -238,7 +240,6 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
         priceINR: parseFloat(newProdPriceINR),
         priceUSD: parseFloat(newProdPriceUSD),
         sku: newProdSku,
-        material: newProdMaterial,
         description: newProdDescription,
         stockQuantity: parseInt(newProdStock, 10),
         images: finalImages,
@@ -252,7 +253,6 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
       setNewProdPriceINR('');
       setNewProdPriceUSD('');
       setNewProdSku(generateNewTrackingSku('Crochet'));
-      setNewProdMaterial('');
       setNewProdImages([]);
       setNewProdUrlInput('');
       setNewProdStock('10');
@@ -1043,6 +1043,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                     <option value="Ceramics & Mugs">Ceramics & Mugs</option>
                     <option value="Plates & Bowls">Plates & Bowls</option>
                     <option value="Home Decor">Home Decor</option>
+                    <option value="Lipan">Lipan</option>
+                    <option value="Keychain">Keychain</option>
                   </select>
                 </div>
 
@@ -1129,18 +1131,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Material *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newProdMaterial}
-                    onChange={(e) => setNewProdMaterial(e.target.value)}
-                    placeholder="e.g. Milk Cotton Yarn"
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
-                  />
-                </div>
+              <div>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Initial Stock</label>
                   <input
