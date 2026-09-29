@@ -12,12 +12,50 @@ import {
   ArrowLeft,
   X,
   ShieldCheck,
-  Trash2
+  Trash2,
+  Upload,
+  Star,
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useCart } from '../../context/CartContext';
+
+// Helper: Resize and compress images client-side for fast uploading and crisp display
+const processImageFile = (file: File): Promise<string> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+        const maxDim = 1200;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.88));
+        } else {
+          resolve(e.target?.result as string);
+        }
+      };
+      img.onerror = () => resolve(e.target?.result as string);
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+};
 
 interface AdminDashboardViewProps {
   onBackToStore: () => void;
@@ -64,8 +102,11 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
   const [newProdSku, setNewProdSku] = useState('');
   const [newProdMaterial, setNewProdMaterial] = useState('');
   const [newProdDescription, setNewProdDescription] = useState('');
-  const [newProdImageUrl, setNewProdImageUrl] = useState('');
-  const [newProdStock, setNewProdStock] = useState('');
+  const [newProdImages, setNewProdImages] = useState<string[]>([]);
+  const [newProdUrlInput, setNewProdUrlInput] = useState('');
+  const [isProcessingPhotos, setIsProcessingPhotos] = useState(false);
+  const [isDraggingPhotos, setIsDraggingPhotos] = useState(false);
+  const [newProdStock, setNewProdStock] = useState('10');
   const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
 
   // Edit stock/price modal
@@ -110,8 +151,61 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
     }
   };
 
+  const handleFilesSelected = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setIsProcessingPhotos(true);
+    const fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    try {
+      const converted = await Promise.all(fileArray.map((f) => processImageFile(f)));
+      setNewProdImages((prev) => [...prev, ...converted]);
+      showToast(`Added ${converted.length} product photo${converted.length === 1 ? '' : 's'}.`);
+    } catch {
+      showToast('Error processing some image files.');
+    } finally {
+      setIsProcessingPhotos(false);
+    }
+  };
+
+  const handleAddImageUrl = () => {
+    const trimmed = newProdUrlInput.trim();
+    if (!trimmed) return;
+    if (newProdImages.includes(trimmed)) {
+      showToast('This image URL has already been added.');
+      return;
+    }
+    setNewProdImages((prev) => [...prev, trimmed]);
+    setNewProdUrlInput('');
+  };
+
+  const handleRemoveImage = (indexToRemove: number) => {
+    setNewProdImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const handleSetPrimaryImage = (index: number) => {
+    if (index === 0) return;
+    setNewProdImages((prev) => {
+      const updated = [...prev];
+      const [selected] = updated.splice(index, 1);
+      updated.unshift(selected);
+      return updated;
+    });
+    showToast('Main cover photo updated!');
+  };
+
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Include URL input if artisan typed one and hasn't clicked Add URL yet
+    let finalImages = [...newProdImages];
+    if (newProdUrlInput.trim() && !finalImages.includes(newProdUrlInput.trim())) {
+      finalImages.push(newProdUrlInput.trim());
+    }
+
+    if (finalImages.length === 0) {
+      showToast('Please add at least one product photo.');
+      return;
+    }
+
     setIsSubmittingProduct(true);
     try {
       await api.products.create({
@@ -123,11 +217,11 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
         material: newProdMaterial,
         description: newProdDescription,
         stockQuantity: parseInt(newProdStock, 10),
-        images: [newProdImageUrl],
+        images: finalImages,
         colors: [{ name: 'Default Studio Color', hex: '#C48B71' }],
         sizes: ['Standard'],
       });
-      showToast('New handcrafted product added to live catalog!');
+      showToast(`New handcrafted item with ${finalImages.length} photo${finalImages.length === 1 ? '' : 's'} added to live catalog!`);
       setIsNewProductModalOpen(false);
       setNewProdName('');
       setNewProdDescription('');
@@ -135,7 +229,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
       setNewProdPriceUSD('');
       setNewProdSku('');
       setNewProdMaterial('');
-      setNewProdImageUrl('');
+      setNewProdImages([]);
+      setNewProdUrlInput('');
       setNewProdStock('10');
       loadData();
     } catch (err: any) {
@@ -883,7 +978,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
         <div className="modal-backdrop" onClick={() => setIsNewProductModalOpen(false)}>
           <div
             className="search-modal-container"
-            style={{ maxWidth: '640px', padding: '32px' }}
+            style={{ maxWidth: '680px', maxHeight: '92vh', overflowY: 'auto', padding: '32px' }}
             onClick={(e) => e.stopPropagation()}
           >
             <button className="modal-close-btn" onClick={() => setIsNewProductModalOpen(false)}>
@@ -982,42 +1077,252 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                 </div>
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Product Photo *</label>
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Enter image URL or select photo below"
-                    value={newProdImageUrl}
-                    onChange={(e) => setNewProdImageUrl(e.target.value)}
-                    style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
-                  />
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setNewProdImageUrl(reader.result as string);
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                    style={{ fontSize: '0.8rem' }}
-                  />
-                  {newProdImageUrl && (
-                    <img
-                      src={newProdImageUrl}
-                      alt="Preview"
-                      style={{ width: '42px', height: '42px', borderRadius: '6px', objectFit: 'cover', border: '1px solid #EBE4DA' }}
-                    />
+              {/* Multiple Product Photos Section */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ fontSize: '0.82rem', fontWeight: 600, color: '#2B2523' }}>
+                    Product Photos *{' '}
+                    <span style={{ fontSize: '0.74rem', color: '#8C827A', fontWeight: 400 }}>
+                      ({newProdImages.length} photo{newProdImages.length === 1 ? '' : 's'} added &bull; First is cover image)
+                    </span>
+                  </label>
+                  {newProdImages.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setNewProdImages([])}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#9B1C1C',
+                        fontSize: '0.74rem',
+                        cursor: 'pointer',
+                        padding: 0,
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      Clear All Photos
+                    </button>
                   )}
                 </div>
+
+                {/* Paste URL Input & Add Button */}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="url"
+                    placeholder="Paste image web URL..."
+                    value={newProdUrlInput}
+                    onChange={(e) => setNewProdUrlInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddImageUrl();
+                      }
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      border: '1px solid #EBE4DA',
+                      fontSize: '0.84rem',
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddImageUrl}
+                    disabled={!newProdUrlInput.trim()}
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: '6px',
+                      backgroundColor: newProdUrlInput.trim() ? '#2B2523' : '#F0EBE5',
+                      color: newProdUrlInput.trim() ? '#FBF9F5' : '#A0978E',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      cursor: newProdUrlInput.trim() ? 'pointer' : 'not-allowed',
+                      border: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      transition: 'all 0.15s ease',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <Plus size={14} />
+                    <span>Add URL</span>
+                  </button>
+                </div>
+
+                {/* Drag and Drop / Device File Upload Zone */}
+                <label
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDraggingPhotos(true);
+                  }}
+                  onDragLeave={() => setIsDraggingPhotos(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDraggingPhotos(false);
+                    handleFilesSelected(e.dataTransfer.files);
+                  }}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '16px 12px',
+                    borderRadius: '8px',
+                    border: isDraggingPhotos ? '2px dashed #C48B71' : '1.5px dashed #DDCFC5',
+                    backgroundColor: isDraggingPhotos ? '#F7EBE1' : '#FAF8F5',
+                    cursor: isProcessingPhotos ? 'wait' : 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#C48B71' }}>
+                    <Upload size={18} />
+                    <span style={{ fontSize: '0.84rem', fontWeight: 600, color: '#2B2523' }}>
+                      {isProcessingPhotos ? 'Processing Photos...' : 'Upload multiple photos from device'}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.74rem', color: '#8C827A' }}>
+                    Click or drag & drop JPG, PNG, WEBP (Select multiple photos at once)
+                  </span>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    disabled={isProcessingPhotos}
+                    onChange={(e) => {
+                      handleFilesSelected(e.target.files);
+                      e.target.value = '';
+                    }}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+
+                {/* Multiple Photos Thumbnail Grid */}
+                {newProdImages.length > 0 && (
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))',
+                      gap: '10px',
+                      maxHeight: '190px',
+                      overflowY: 'auto',
+                      padding: '10px',
+                      backgroundColor: '#FAF8F5',
+                      borderRadius: '8px',
+                      border: '1px solid #EBE4DA',
+                      marginTop: '4px',
+                    }}
+                  >
+                    {newProdImages.map((img, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          position: 'relative',
+                          aspectRatio: '1',
+                          borderRadius: '8px',
+                          overflow: 'hidden',
+                          border: idx === 0 ? '2px solid #C48B71' : '1px solid #E0D7CC',
+                          backgroundColor: '#FFF',
+                          boxShadow: idx === 0 ? '0 2px 8px rgba(196, 139, 113, 0.35)' : '0 1px 3px rgba(0,0,0,0.05)',
+                        }}
+                      >
+                        <img
+                          src={img}
+                          alt={`Product preview ${idx + 1}`}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+
+                        {/* Primary Badge or Make Cover Action */}
+                        {idx === 0 ? (
+                          <span
+                            style={{
+                              position: 'absolute',
+                              top: '4px',
+                              left: '4px',
+                              backgroundColor: '#C48B71',
+                              color: '#FFF',
+                              fontSize: '0.58rem',
+                              fontWeight: 700,
+                              padding: '2px 5px',
+                              borderRadius: '4px',
+                              letterSpacing: '0.04em',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '2px',
+                            }}
+                          >
+                            <Star size={8} fill="#FFF" /> Cover
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            title="Set as main catalog cover photo"
+                            onClick={() => handleSetPrimaryImage(idx)}
+                            style={{
+                              position: 'absolute',
+                              top: '4px',
+                              left: '4px',
+                              backgroundColor: 'rgba(43, 37, 35, 0.75)',
+                              color: '#FFF',
+                              fontSize: '0.58rem',
+                              border: 'none',
+                              borderRadius: '3px',
+                              padding: '2px 4px',
+                              cursor: 'pointer',
+                              fontWeight: 500,
+                            }}
+                          >
+                            Set Cover
+                          </button>
+                        )}
+
+                        {/* Remove Photo Button */}
+                        <button
+                          type="button"
+                          title="Remove photo"
+                          onClick={() => handleRemoveImage(idx)}
+                          style={{
+                            position: 'absolute',
+                            top: '4px',
+                            right: '4px',
+                            width: '18px',
+                            height: '18px',
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(43, 37, 35, 0.85)',
+                            color: '#FFF',
+                            border: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            padding: 0,
+                          }}
+                        >
+                          <X size={10} />
+                        </button>
+
+                        {/* Order Index */}
+                        <div
+                          style={{
+                            position: 'absolute',
+                            bottom: '3px',
+                            right: '4px',
+                            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                            color: '#FFF',
+                            fontSize: '0.58rem',
+                            padding: '1px 4px',
+                            borderRadius: '3px',
+                            fontWeight: 600,
+                          }}
+                        >
+                          #{idx + 1}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
