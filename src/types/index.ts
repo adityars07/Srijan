@@ -6,7 +6,7 @@ export interface ProductColor {
 export interface Product {
   id: string;
   name: string;
-  category: 'Crochet' | 'Resin Art' | 'Name Plates' | 'Ceramics & Mugs' | 'Plates & Bowls' | 'Home Decor';
+  category: 'Crochet' | 'Resin Art' | 'Name Plates' | 'Ceramics & Mugs' | 'Plates & Bowls' | 'Home Decor' | 'Lipan' | 'Keychain';
   collection: 'Heritage Resin' | 'Earth & Clay' | 'Boho Blooms' | 'Minimalist Stoneware' | 'Signature Srijan';
   priceINR: number;
   priceUSD: number;
