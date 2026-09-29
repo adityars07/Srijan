@@ -75,14 +75,11 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
             {/* Bottom Arched Visual Art & Product Reel */}
             <div
               className="hero-bottom-art"
-              onClick={() => handleTileClick(tile1)}
-              style={{ cursor: 'pointer' }}
-              title="Artisan Studio Reel"
             >
               {!videoError ? (
                 <video
                   ref={videoRef}
-                  src="/videos/crochet-rose-bouquet.mp4"
+                  src="/videos/igexport-Dd0l4jISXI7.mp4"
                   poster="/images/crochet-artisan-floral-bouquet.jpg"
                   autoPlay
                   loop
@@ -102,11 +99,7 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
               {/* Cinematic Vignette Overlay */}
               <div className="hero-video-gradient" />
 
-              {/* Studio Reel Status Badge */}
-              <div className="hero-video-badge">
-                <span className="hero-video-dot" />
-                Artisan Reel
-              </div>
+
 
               {/* Video Play/Pause & Audio Controls */}
               {!videoError && (
