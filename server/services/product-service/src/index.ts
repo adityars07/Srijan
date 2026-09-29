@@ -32,6 +32,41 @@ async function invalidateProductCache(): Promise<void> {
   }
 }
 
+// Helper: Generate structured, collision-free Product Tracking ID / SKU
+async function generateUniqueTrackingSku(categoryName: string, customSku?: string): Promise<string> {
+  if (customSku && customSku.trim()) {
+    const existing = await prisma.product.findUnique({ where: { sku: customSku.trim() } });
+    if (!existing) return customSku.trim();
+  }
+
+  const categoryPrefixMap: Record<string, string> = {
+    'Crochet': 'CRO',
+    'Resin Art': 'RES',
+    'Name Plates': 'NMP',
+    'Ceramics & Mugs': 'CER',
+    'Plates & Bowls': 'PLB',
+    'Home Decor': 'DEC',
+  };
+
+  const catCode = categoryPrefixMap[categoryName] || categoryName?.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase() || 'ART';
+
+  let candidateSku = '';
+  let isUnique = false;
+  let attempts = 0;
+
+  while (!isUnique && attempts < 10) {
+    attempts++;
+    const randomSerial = Math.floor(100000 + Math.random() * 900000);
+    candidateSku = `SRJ-${catCode}-${randomSerial}`;
+    const found = await prisma.product.findUnique({ where: { sku: candidateSku } });
+    if (!found) {
+      isUnique = true;
+    }
+  }
+
+  return candidateSku;
+}
+
 // Health Check with Redis Connectivity Status
 app.get('/health', (_req: Request, res: Response) => {
   res.json({
@@ -241,6 +276,7 @@ productRouter.post('/', async (req: Request, res: Response): Promise<void> => {
     } = req.body;
 
     const slug = req.body.slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const trackingSku = await generateUniqueTrackingSku(category, sku);
 
     const product = await prisma.product.create({
       data: {
@@ -257,7 +293,7 @@ productRouter.post('/', async (req: Request, res: Response): Promise<void> => {
         material: material || 'Handcrafted',
         inStock: stockQuantity ? Number(stockQuantity) > 0 : true,
         stockQuantity: Number(stockQuantity || 10),
-        sku: sku || `SRJ-${Date.now().toString().slice(-6)}`,
+        sku: trackingSku,
         dimensions,
         careInstructions: careInstructions || 'Wipe with a clean dry cloth.',
         deliveryInfo: deliveryInfo || 'Crafted on order. Dispatched in 3-4 business days.',

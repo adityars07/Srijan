@@ -61,6 +61,25 @@ interface AdminDashboardViewProps {
   onBackToStore: () => void;
 }
 
+// Helper: Auto-generate structured tracking ID / SKU based on category
+const getCategoryTrackingPrefix = (cat: string): string => {
+  const map: Record<string, string> = {
+    'Crochet': 'CRO',
+    'Resin Art': 'RES',
+    'Name Plates': 'NMP',
+    'Ceramics & Mugs': 'CER',
+    'Plates & Bowls': 'PLB',
+    'Home Decor': 'DEC',
+  };
+  return map[cat] || 'ART';
+};
+
+const generateNewTrackingSku = (cat: string = 'Crochet'): string => {
+  const prefix = getCategoryTrackingPrefix(cat);
+  const randomSerial = Math.floor(100000 + Math.random() * 900000);
+  return `SRJ-${prefix}-${randomSerial}`;
+};
+
 export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackToStore }) => {
   const { user, isAdmin, login } = useAuth();
   const { formatPrice } = useCurrency();
@@ -99,7 +118,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
   const [newProdCategory, setNewProdCategory] = useState('Crochet');
   const [newProdPriceINR, setNewProdPriceINR] = useState('');
   const [newProdPriceUSD, setNewProdPriceUSD] = useState('');
-  const [newProdSku, setNewProdSku] = useState('');
+  const [newProdSku, setNewProdSku] = useState(() => generateNewTrackingSku('Crochet'));
   const [newProdMaterial, setNewProdMaterial] = useState('');
   const [newProdDescription, setNewProdDescription] = useState('');
   const [newProdImages, setNewProdImages] = useState<string[]>([]);
@@ -108,6 +127,11 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
   const [isDraggingPhotos, setIsDraggingPhotos] = useState(false);
   const [newProdStock, setNewProdStock] = useState('10');
   const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
+
+  const openAddProductModal = () => {
+    setNewProdSku(generateNewTrackingSku(newProdCategory));
+    setIsNewProductModalOpen(true);
+  };
 
   // Edit stock/price modal
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
@@ -227,7 +251,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
       setNewProdDescription('');
       setNewProdPriceINR('');
       setNewProdPriceUSD('');
-      setNewProdSku('');
+      setNewProdSku(generateNewTrackingSku('Crochet'));
       setNewProdMaterial('');
       setNewProdImages([]);
       setNewProdUrlInput('');
@@ -744,7 +768,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
               <span style={{ fontSize: '0.82rem', color: '#746D66' }}>Manage stock, prices, and add new creations</span>
             </div>
             <button
-              onClick={() => setIsNewProductModalOpen(true)}
+              onClick={openAddProductModal}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -1006,7 +1030,11 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                   <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Category</label>
                   <select
                     value={newProdCategory}
-                    onChange={(e) => setNewProdCategory(e.target.value)}
+                    onChange={(e) => {
+                      const newCat = e.target.value;
+                      setNewProdCategory(newCat);
+                      setNewProdSku(generateNewTrackingSku(newCat));
+                    }}
                     style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
                   >
                     <option value="Crochet">Crochet</option>
@@ -1019,14 +1047,62 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>SKU Code *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newProdSku}
-                    onChange={(e) => setNewProdSku(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
-                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Product Tracking ID / SKU *</label>
+                    <span
+                      style={{
+                        fontSize: '0.66rem',
+                        backgroundColor: '#F5EFEB',
+                        color: '#C48B71',
+                        fontWeight: 600,
+                        padding: '1px 6px',
+                        borderRadius: '4px',
+                        border: '1px solid #EBE4DA',
+                      }}
+                    >
+                      Auto-Assigned
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <input
+                      type="text"
+                      required
+                      value={newProdSku}
+                      onChange={(e) => setNewProdSku(e.target.value)}
+                      placeholder="e.g. SRJ-CRO-849201"
+                      style={{
+                        flex: 1,
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        border: '1px solid #EBE4DA',
+                        fontFamily: 'monospace',
+                        fontWeight: 600,
+                        letterSpacing: '0.04em',
+                      }}
+                    />
+                    <button
+                      type="button"
+                      title="Generate new Tracking ID"
+                      onClick={() => {
+                        const newId = generateNewTrackingSku(newProdCategory);
+                        setNewProdSku(newId);
+                        showToast(`New Tracking ID generated: ${newId}`);
+                      }}
+                      style={{
+                        padding: '8px 10px',
+                        borderRadius: '6px',
+                        border: '1px solid #EBE4DA',
+                        backgroundColor: '#FAF8F5',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#2B2523',
+                      }}
+                    >
+                      <RefreshCw size={13} />
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -1370,7 +1446,9 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
             <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '8px' }}>
               Quick Edit: {editingProduct.name}
             </h3>
-            <p style={{ fontSize: '0.82rem', color: '#746D66', marginBottom: '16px' }}>SKU: {editingProduct.sku}</p>
+            <p style={{ fontSize: '0.82rem', color: '#746D66', marginBottom: '16px' }}>
+              Tracking ID / SKU: <strong style={{ fontFamily: 'monospace', color: '#2B2523' }}>{editingProduct.sku}</strong>
+            </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>

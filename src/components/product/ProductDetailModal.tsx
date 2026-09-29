@@ -136,16 +136,17 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   {isOutOfStock
                     ? '● Out of Stock (0 units left)'
                     : product.inStock
-                    ? `In Stock • SKU: ${product.sku}`
-                    : 'Made to Order'}
+                    ? `In Stock • Item ID: ${product.sku}`
+                    : `Made to Order • Item ID: ${product.sku}`}
                 </span>
               </div>
 
               <p className="modal-description">{product.description}</p>
 
-              {/* Collection badge */}
-              <div style={{ fontSize: '0.82rem', color: '#746D66', marginBottom: '18px' }}>
-                <strong>Collection:</strong> <span style={{ color: '#C48B71', fontWeight: 600 }}>{product.collection}</span>
+              {/* Collection & Tracking Reference */}
+              <div style={{ fontSize: '0.82rem', color: '#746D66', marginBottom: '18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                <div><strong>Collection:</strong> <span style={{ color: '#C48B71', fontWeight: 600 }}>{product.collection}</span></div>
+                <div style={{ fontSize: '0.76rem', color: '#8C827A' }}>Tracking Ref: <code style={{ backgroundColor: '#FAF5EE', padding: '2px 6px', borderRadius: '4px', border: '1px solid #EBE4DA', color: '#2B2523', fontFamily: 'monospace', fontWeight: 600 }}>{product.sku}</code></div>
               </div>
 
               {/* Color Swatches */}
