@@ -459,14 +459,37 @@ img {
   min-height: 0;
 }
 
+/* Asymmetrical Editorial Collage Rhythm for Luxury Framing */
+.hero-col-middle .hero-image-tile:first-child {
+  flex: 1.15;
+}
+.hero-col-middle .hero-image-tile:last-child {
+  flex: 0.85;
+}
+
+.hero-col-right .hero-image-tile:first-child {
+  flex: 0.95;
+}
+.hero-col-right .hero-image-tile:last-child {
+  flex: 1.05;
+}
+
 .hero-image-tile {
   flex: 1;
   min-height: 0;
   position: relative;
   border-radius: 24px;
   overflow: hidden;
-  background-color: var(--bg-warm);
+  background-color: #EBE6DF;
   cursor: pointer;
+  border: 1px solid rgba(43, 37, 35, 0.08);
+  box-shadow: 0 4px 18px -2px rgba(43, 37, 35, 0.08);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-image-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px -4px rgba(43, 37, 35, 0.16);
 }
 
 .hero-image-tile img {
@@ -476,13 +499,93 @@ img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .hero-image-tile:hover img {
   transform: scale(1.04);
 }
 
+/* Atmospheric Vignette Gradient Overlay for Depth and Contrast */
+.hero-tile-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 16, 14, 0.15) 0%,
+    rgba(0, 0, 0, 0) 35%,
+    rgba(20, 16, 14, 0.1) 60%,
+    rgba(20, 16, 14, 0.68) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.3s ease;
+}
+
+.hero-image-tile:hover .hero-tile-gradient {
+  opacity: 0.92;
+}
+
+/* Floating Luxury Category Pill */
+.hero-tile-pill {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(251, 249, 245, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  color: #2B2523;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  pointer-events: none;
+}
+
+.hero-image-tile:hover .hero-tile-pill {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+/* Bottom Editorial Caption */
+.hero-tile-caption {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 68px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.hero-tile-name {
+  font-family: var(--font-serif);
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  line-height: 1.25;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+}
+
+.hero-tile-price {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #F7EFE9;
+  margin-top: 3px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
 .hero-tile-btn {
   position: absolute;
@@ -491,7 +594,7 @@ img {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: rgba(38, 32, 30, 0.85);
+  background-color: rgba(38, 32, 30, 0.88);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -499,15 +602,17 @@ img {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   transition: var(--transition-fast);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   cursor: pointer;
+  z-index: 2;
 }
 
 .hero-feature-card:hover .hero-tile-btn,
 .hero-image-tile:hover .hero-tile-btn {
   background-color: #201B19;
   transform: scale(1.08);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 
