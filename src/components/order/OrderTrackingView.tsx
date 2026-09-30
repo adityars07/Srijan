@@ -209,8 +209,8 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
           </div>
 
           {/* Timeline Pipeline */}
-          <div style={{ padding: '36px 30px 40px', borderBottom: '1px solid #EBE4DA' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', position: 'relative' }}>
+          <div className="tracking-timeline-container" style={{ borderBottom: '1px solid #EBE4DA' }}>
+            <div className="tracking-timeline-grid">
               {steps.map((step, idx) => {
                 const stepNum = idx + 1;
                 const isCompleted = currentStep >= stepNum;
@@ -218,29 +218,24 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
                 const IconComponent = step.icon;
 
                 return (
-                  <div key={step.title} style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+                  <div key={step.title} className={`tracking-step-card ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}`}>
                     <div
+                      className="tracking-step-icon"
                       style={{
-                        width: '44px',
-                        height: '44px',
-                        borderRadius: '50%',
                         backgroundColor: isCompleted ? '#2B2523' : '#EBE4DA',
                         color: isCompleted ? '#FBF9F5' : '#8C827A',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        margin: '0 auto 12px',
-                        transition: 'all 0.3s ease',
                         border: isCurrent ? '3px solid #C48B71' : 'none',
                       }}
                     >
                       <IconComponent size={20} />
                     </div>
-                    <div style={{ fontWeight: 600, fontSize: '0.88rem', color: isCompleted ? '#2B2523' : '#8C827A', marginBottom: '4px' }}>
-                      {step.title}
-                    </div>
-                    <div style={{ fontSize: '0.74rem', color: '#746D66', lineHeight: 1.3 }}>
-                      {step.desc}
+                    <div className="tracking-step-text">
+                      <div className="tracking-step-title" style={{ color: isCompleted ? '#2B2523' : '#8C827A' }}>
+                        {step.title}
+                      </div>
+                      <div className="tracking-step-desc">
+                        {step.desc}
+                      </div>
                     </div>
                   </div>
                 );
@@ -249,7 +244,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
           </div>
 
           {/* Order Details & Summary */}
-          <div style={{ padding: '30px', display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '30px' }}>
+          <div className="tracking-summary-grid">
             {/* Items */}
             <div>
               <h4 style={{ fontSize: '0.96rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '18px', color: '#2B2523' }}>
