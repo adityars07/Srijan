@@ -11,36 +11,36 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
     <div style={{ padding: '40px 0 90px' }}>
       <div className="container">
         {/* Editorial Heading */}
-        <div style={{ maxWidth: '780px', margin: '0 auto 60px', textAlign: 'center' }}>
+        <div className="about-editorial-header">
           <div className="section-eyebrow" style={{ justifyContent: 'center' }}>
             The Story of Srijan
           </div>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '3.2rem', lineHeight: 1.15, marginBottom: '20px' }}>
+          <h1 className="about-hero-title">
             Where Every Creation Tells a Story
           </h1>
-          <p style={{ fontSize: '1.1rem', color: '#746D66', lineHeight: 1.7 }}>
+          <p className="about-hero-subtitle">
             In Sanskrit, <em>Srijan</em> means genesis—the soulful act of bringing beauty into existence. Founded by master artisan Rakhi Karn, our studio celebrates the patient rhythms of slow craftsmanship.
           </p>
         </div>
 
         {/* Big Visual Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '24px', marginBottom: '80px' }}>
-          <div style={{ height: '440px', borderRadius: '24px', overflow: 'hidden' }}>
+        <div className="about-visual-grid">
+          <div className="about-main-img-wrap">
             <img
               src="/images/potter_hands.jpg"
               alt="Artisan shaping clay"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
-          <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: '24px' }}>
-            <div style={{ borderRadius: '24px', overflow: 'hidden' }}>
+          <div className="about-sub-imgs-col">
+            <div className="about-sub-img-wrap">
               <img
                 src="/images/crochet_bouquet.jpg"
                 alt="Crochet craftsmanship"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
-            <div style={{ borderRadius: '24px', overflow: 'hidden' }}>
+            <div className="about-sub-img-wrap">
               <img
                 src="/images/resin_frame.jpg"
                 alt="Resin floral casting"
@@ -51,8 +51,8 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
         </div>
 
         {/* Narrative Section */}
-        <div style={{ maxWidth: '860px', margin: '0 auto 80px', display: 'flex', flexDirection: 'column', gap: '30px', fontSize: '1.05rem', color: '#2B2523', lineHeight: 1.8 }}>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem' }}>
+        <div className="about-narrative-section">
+          <h2 className="about-section-heading">
             The Art of Handcrafted Excellence
           </h2>
           <p>
@@ -64,8 +64,8 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
         </div>
 
         {/* 4 Pillars Card Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '24px', marginBottom: '80px' }}>
-          <div style={{ background: '#F4EFEA', padding: '36px 28px', borderRadius: '20px' }}>
+        <div className="about-pillars-grid">
+          <div className="about-pillar-card">
             <Sparkles size={28} color="#C48B71" style={{ marginBottom: '16px' }} />
             <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '10px' }}>Authentic Craftsmanship</h4>
             <p style={{ fontSize: '0.9rem', color: '#746D66', lineHeight: 1.6 }}>
@@ -73,7 +73,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
             </p>
           </div>
 
-          <div style={{ background: '#F4EFEA', padding: '36px 28px', borderRadius: '20px' }}>
+          <div className="about-pillar-card">
             <Leaf size={28} color="#C48B71" style={{ marginBottom: '16px' }} />
             <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '10px' }}>Sustainable Materials</h4>
             <p style={{ fontSize: '0.9rem', color: '#746D66', lineHeight: 1.6 }}>
@@ -81,7 +81,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
             </p>
           </div>
 
-          <div style={{ background: '#F4EFEA', padding: '36px 28px', borderRadius: '20px' }}>
+          <div className="about-pillar-card">
             <Feather size={28} color="#C48B71" style={{ marginBottom: '16px' }} />
             <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '10px' }}>Unique Designs</h4>
             <p style={{ fontSize: '0.9rem', color: '#746D66', lineHeight: 1.6 }}>
@@ -89,7 +89,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
             </p>
           </div>
 
-          <div style={{ background: '#F4EFEA', padding: '36px 28px', borderRadius: '20px' }}>
+          <div className="about-pillar-card">
             <HeartHandshake size={28} color="#C48B71" style={{ marginBottom: '16px' }} />
             <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '10px' }}>Direct Artisan Connection</h4>
             <p style={{ fontSize: '0.9rem', color: '#746D66', lineHeight: 1.6 }}>
@@ -99,7 +99,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
         </div>
 
         {/* CTA banner */}
-        <div style={{ backgroundColor: '#2B2523', color: '#FBF9F5', borderRadius: '24px', padding: '54px 40px', textAlign: 'center', maxWidth: '980px', margin: '0 auto' }}>
+        <div className="about-cta-banner">
           <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem', marginBottom: '14px' }}>
             Looking for a Bespoke Custom Piece?
           </h3>
