@@ -117,6 +117,32 @@ export const api = {
       }),
   },
 
+  // Payments (Razorpay Live)
+  payments: {
+    createOrder: (orderData: any) =>
+      request<{
+        razorpayOrderId: string;
+        dbOrderId: string;
+        orderNumber: string;
+        amount: number;
+        currency: string;
+        key: string;
+      }>('/payments/create-order', {
+        method: 'POST',
+        body: JSON.stringify(orderData),
+      }),
+    verify: (paymentData: {
+      razorpay_order_id: string;
+      razorpay_payment_id: string;
+      razorpay_signature: string;
+      dbOrderId: string;
+    }) =>
+      request<{ success: boolean; order: any; message?: string }>('/payments/verify', {
+        method: 'POST',
+        body: JSON.stringify(paymentData),
+      }),
+  },
+
   // Custom Bespoke Commissions
   customRequests: {
     create: (requestData: any) =>
