@@ -1,5 +1,21 @@
 import React, { useState } from 'react';
-import { Search, Heart, ShoppingBag, User, ChevronDown, ShieldCheck, Truck, LogOut, Sparkles } from 'lucide-react';
+import {
+  Search,
+  Heart,
+  ShoppingBag,
+  User,
+  ChevronDown,
+  ChevronRight,
+  ShieldCheck,
+  Truck,
+  LogOut,
+  Sparkles,
+  Menu,
+  X,
+  Phone,
+  Mail,
+  Palette,
+} from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useAuth } from '../../context/AuthContext';
@@ -29,6 +45,8 @@ export const Header: React.FC<HeaderProps> = ({
 
   const [shopDropdownOpen, setShopDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileShopOpen, setMobileShopOpen] = useState(false);
 
   const categories = [
     'All Creations',
@@ -38,6 +56,8 @@ export const Header: React.FC<HeaderProps> = ({
     'Ceramics & Mugs',
     'Plates & Bowls',
     'Home Decor',
+    'Lipan',
+    'Keychain',
   ];
 
   return (
@@ -351,9 +371,279 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
               )}
             </div>
+
+            {/* Mobile Hamburger Menu Toggle Button */}
+            <button
+              type="button"
+              className="mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Open mobile navigation menu"
+              title="Menu"
+            >
+              <Menu size={22} strokeWidth={2} />
+            </button>
           </div>
         </div>
       </header>
+
+      {/* Mobile Navigation Drawer */}
+      {mobileMenuOpen && (
+        <div className="mobile-drawer-backdrop" onClick={() => setMobileMenuOpen(false)}>
+          <aside
+            className="mobile-nav-drawer"
+            onClick={(e) => e.stopPropagation()}
+            aria-label="Mobile Navigation"
+          >
+            {/* Drawer Header */}
+            <div className="mobile-drawer-header">
+              <div
+                className="brand-logo"
+                onClick={() => {
+                  onNavigate('home');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <div className="brand-icon-glyph">
+                  <svg viewBox="0 0 32 32" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="1.6" />
+                    <path d="M16 6 C12 11 12 21 16 26" stroke="currentColor" strokeWidth="1.6" />
+                    <path d="M16 6 C20 11 20 21 16 26" stroke="currentColor" strokeWidth="1.6" />
+                    <path d="M6 16 C11 12 21 12 26 16" stroke="currentColor" strokeWidth="1.6" />
+                    <path d="M6 16 C11 20 21 20 26 16" stroke="currentColor" strokeWidth="1.6" />
+                  </svg>
+                </div>
+                <div className="brand-title-group">
+                  <span className="brand-name" style={{ fontSize: '1.25rem' }}>Srijan</span>
+                  <span className="brand-tagline">Handcrafted by Rakhi</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="icon-action-btn"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close navigation menu"
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            {/* Quick Search Trigger */}
+            <div className="mobile-drawer-search-wrap">
+              <button
+                type="button"
+                className="mobile-drawer-search-btn"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenSearch();
+                }}
+              >
+                <Search size={16} color="#746D66" />
+                <span>Search creations, collections...</span>
+              </button>
+            </div>
+
+            {/* Main Links */}
+            <div className="mobile-drawer-nav-list">
+              <button
+                type="button"
+                className={`mobile-nav-item ${currentView === 'home' ? 'active' : ''}`}
+                onClick={() => {
+                  onNavigate('home');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <span>Home</span>
+                <ChevronRight size={16} className="mobile-nav-arrow" />
+              </button>
+
+              {/* Shop & Categories Accordion */}
+              <div className="mobile-nav-accordion">
+                <button
+                  type="button"
+                  className={`mobile-nav-item ${currentView === 'shop' ? 'active' : ''}`}
+                  onClick={() => setMobileShopOpen(!mobileShopOpen)}
+                >
+                  <span style={{ fontWeight: 600 }}>Shop Creations</span>
+                  <ChevronDown
+                    size={16}
+                    style={{
+                      transition: 'transform 0.25s ease',
+                      transform: mobileShopOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    }}
+                  />
+                </button>
+
+                {mobileShopOpen && (
+                  <div className="mobile-subnav-list">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        className="mobile-subnav-item"
+                        onClick={() => {
+                          onNavigate('shop', cat === 'All Creations' ? undefined : cat);
+                          setMobileMenuOpen(false);
+                        }}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="button"
+                className="mobile-nav-item highlight"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenCommission();
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Palette size={18} color="#C48B71" />
+                  <span>Custom Orders / Bespoke</span>
+                </div>
+                <span className="mobile-nav-badge">Handmade</span>
+              </button>
+
+              <button
+                type="button"
+                className={`mobile-nav-item ${currentView === 'about' ? 'active' : ''}`}
+                onClick={() => {
+                  onNavigate('about');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <span>About Rakhi & Studio</span>
+                <ChevronRight size={16} className="mobile-nav-arrow" />
+              </button>
+
+              <button
+                type="button"
+                className="mobile-nav-item"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenContact();
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Mail size={17} />
+                  <span>Contact Artisan</span>
+                </div>
+                <ChevronRight size={16} className="mobile-nav-arrow" />
+              </button>
+
+              <button
+                type="button"
+                className={`mobile-nav-item ${currentView === 'tracking' ? 'active' : ''}`}
+                onClick={() => {
+                  onNavigate('tracking');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Truck size={17} />
+                  <span>Track My Order</span>
+                </div>
+                <ChevronRight size={16} className="mobile-nav-arrow" />
+              </button>
+
+              {isAdmin && (
+                <button
+                  type="button"
+                  className="mobile-nav-item admin-link"
+                  onClick={() => {
+                    onNavigate('admin');
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <ShieldCheck size={18} color="#C48B71" />
+                    <span>Studio Admin Dashboard</span>
+                  </div>
+                  <ChevronRight size={16} className="mobile-nav-arrow" />
+                </button>
+              )}
+            </div>
+
+            {/* Bottom Actions inside Mobile Drawer */}
+            <div className="mobile-drawer-footer">
+              {/* Currency Toggle */}
+              <div className="mobile-footer-row">
+                <span style={{ fontSize: '0.84rem', color: '#746D66', fontWeight: 500 }}>Currency:</span>
+                <button
+                  type="button"
+                  className="currency-toggle-btn"
+                  onClick={toggleCurrency}
+                  style={{ padding: '6px 14px' }}
+                >
+                  <Sparkles size={13} color="#C48B71" />
+                  <span>{currency === 'INR' ? '₹ INR (Rupees)' : '$ USD (Dollars)'}</span>
+                </button>
+              </div>
+
+              {/* Wishlist Shortcut */}
+              <button
+                type="button"
+                className="mobile-footer-btn"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  openWishlist();
+                }}
+              >
+                <Heart size={17} fill={wishlistCount > 0 ? '#C48B71' : 'none'} color={wishlistCount > 0 ? '#C48B71' : 'currentColor'} />
+                <span>My Wishlist ({wishlistCount})</span>
+              </button>
+
+              {/* User Account / Sign In */}
+              {isAuthenticated ? (
+                <div className="mobile-user-card">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div className="mobile-user-avatar">
+                      <User size={16} color="#FFF" />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: '0.88rem', color: '#2B2523' }}>{user?.name}</div>
+                      <div style={{ fontSize: '0.74rem', color: '#746D66' }}>{user?.email}</div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      logout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="mobile-signout-btn"
+                  >
+                    <LogOut size={15} />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="mobile-signin-btn"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenAuth();
+                  }}
+                >
+                  <User size={16} />
+                  <span>Sign In or Register</span>
+                </button>
+              )}
+
+              {/* Artisan Direct Helpline */}
+              <div className="mobile-helpline">
+                <Phone size={13} color="#C48B71" />
+                <span>Artisan Helpline: +91 9711881512</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      )}
     </>
   );
 };
