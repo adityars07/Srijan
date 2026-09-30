@@ -169,6 +169,15 @@ app.use(
   })
 );
 
+// 5. Payment Routes (proxied to Order Service)
+app.use(
+  '/api/payments',
+  createProxyMiddleware({
+    target: `${ORDER_SERVICE_URL}/payments`,
+    changeOrigin: true,
+  })
+);
+
 // Fallback 404 for unknown gateway paths
 app.use((_req: Request, res: Response) => {
   res.status(404).json({
@@ -179,6 +188,7 @@ app.use((_req: Request, res: Response) => {
       '/api/reviews/*',
       '/api/orders/*',
       '/api/coupons/*',
+      '/api/payments/*',
       '/api/custom-requests/*',
       '/api/contact/*',
       '/api/admin/metrics',
@@ -194,6 +204,7 @@ app.listen(PORT, () => {
   console.log(`  ├── /api/reviews         -> ${PRODUCT_SERVICE_URL}/reviews`);
   console.log(`  ├── /api/orders          -> ${ORDER_SERVICE_URL}`);
   console.log(`  ├── /api/coupons         -> ${ORDER_SERVICE_URL}/coupons`);
+  console.log(`  ├── /api/payments        -> ${ORDER_SERVICE_URL}/payments`);
   console.log(`  ├── /api/custom-requests -> ${COMMISSION_SERVICE_URL}`);
   console.log(`  └── /api/contact         -> ${COMMISSION_SERVICE_URL}/contact`);
 });
