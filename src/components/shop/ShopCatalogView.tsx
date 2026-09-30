@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ChevronRight, X, Heart } from 'lucide-react';
+import { ChevronRight, X, Heart, SlidersHorizontal } from 'lucide-react';
 import type { Product, FilterState } from '../../types';
 import { FilterSidebar } from './FilterSidebar';
 import { ProductCard } from './ProductCard';
@@ -24,6 +24,7 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
   const { currency } = useCurrency();
   const { isWishlisted, wishlistCount } = useCart();
   const [onlyWishlist, setOnlyWishlist] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
@@ -112,6 +113,13 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
     filters.priceRange[1] < 999999 ||
     Boolean(filters.searchQuery);
 
+  const activeFilterCount =
+    (filters.categories.length > 0 ? filters.categories.length : 0) +
+    (filters.collections.length > 0 ? filters.collections.length : 0) +
+    (filters.priceRange[0] > 0 || filters.priceRange[1] < 999999 ? 1 : 0) +
+    (filters.searchQuery ? 1 : 0) +
+    (onlyWishlist ? 1 : 0);
+
   return (
     <div style={{ padding: '36px 0 80px' }}>
       <div className="container">
@@ -137,6 +145,18 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
 
           {/* Quick Filters & Sort Dropdown */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            {/* Mobile Filter Trigger Button */}
+            <button
+              type="button"
+              className="mobile-filter-trigger-btn"
+              onClick={() => setMobileFiltersOpen(true)}
+            >
+              <SlidersHorizontal size={15} />
+              <span>Filters</span>
+              {activeFilterCount > 0 && (
+                <span className="mobile-filter-badge">{activeFilterCount}</span>
+              )}
+            </button>
             <button
               type="button"
               onClick={() => setOnlyWishlist(!onlyWishlist)}
@@ -305,23 +325,19 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
           </div>
         )}
 
-        {/* Main Content Layout: Sidebar + Grid */}
-        <div style={{ display: 'flex', gap: '48px', alignItems: 'flex-start' }}>
-          <FilterSidebar
-            filters={filters}
-            onFilterChange={onFilterChange}
-            onClearFilters={handleClearAll}
-          />
+        {/* Main Content Layout: Responsive Sidebar + Grid */}
+        <div className="shop-layout-container">
+          <aside className="shop-desktop-sidebar">
+            <FilterSidebar
+              filters={filters}
+              onFilterChange={onFilterChange}
+              onClearFilters={handleClearAll}
+            />
+          </aside>
 
-          <div style={{ flex: 1 }}>
+          <div className="shop-products-main">
             {filteredProducts.length > 0 ? (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-                  gap: '24px',
-                }}
-              >
+              <div className="products-grid shop-grid">
                 {filteredProducts.map((p) => (
                   <ProductCard key={p.id} product={p} onSelect={onSelectProduct} />
                 ))}
@@ -364,6 +380,60 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Mobile Filter Sheet Drawer */}
+      {mobileFiltersOpen && (
+        <div className="modal-backdrop mobile-filter-backdrop" onClick={() => setMobileFiltersOpen(false)}>
+          <div className="mobile-filter-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="mobile-filter-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <SlidersHorizontal size={18} color="#C48B71" />
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', margin: 0, color: '#2B2523' }}>
+                  Filter Creations
+                </h3>
+                {activeFilterCount > 0 && (
+                  <span className="mobile-filter-badge">{activeFilterCount}</span>
+                )}
+              </div>
+              <button
+                type="button"
+                className="icon-action-btn"
+                onClick={() => setMobileFiltersOpen(false)}
+                aria-label="Close filters"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="mobile-filter-body">
+              <FilterSidebar
+                filters={filters}
+                onFilterChange={onFilterChange}
+                onClearFilters={handleClearAll}
+              />
+            </div>
+
+            <div className="mobile-filter-footer">
+              {activeFilterCount > 0 && (
+                <button
+                  type="button"
+                  onClick={handleClearAll}
+                  className="mobile-filter-clear-btn"
+                >
+                  Clear All
+                </button>
+              )}
+              <button
+                type="button"
+                className="mobile-filter-apply-btn"
+                onClick={() => setMobileFiltersOpen(false)}
+              >
+                Show {filteredProducts.length} Piece{filteredProducts.length !== 1 ? 's' : ''}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
