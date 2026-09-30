@@ -46,6 +46,8 @@ async function generateUniqueTrackingSku(categoryName: string, customSku?: strin
     'Ceramics & Mugs': 'CER',
     'Plates & Bowls': 'PLB',
     'Home Decor': 'DEC',
+    'Lipan': 'LIP',
+    'Keychain': 'KEY',
   };
 
   const catCode = categoryPrefixMap[categoryName] || categoryName?.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase() || 'ART';
@@ -349,22 +351,46 @@ productRouter.put('/:id', async (req: Request, res: Response): Promise<void> => 
       description,
       material,
       stockQuantity,
+      sku,
+      dimensions,
+      careInstructions,
+      deliveryInfo,
       isTrending,
       isFeatured,
       badge,
       inStock,
+      images,
     } = req.body;
+
+    // If an images array is provided, replace the product's gallery images
+    if (images && Array.isArray(images)) {
+      await prisma.productImage.deleteMany({ where: { productId: id } });
+      if (images.length > 0) {
+        await prisma.productImage.createMany({
+          data: images.map((url: string, idx: number) => ({
+            productId: id,
+            url,
+            isPrimary: idx === 0,
+            order: idx,
+          })),
+        });
+      }
+    }
 
     const updated = await prisma.product.update({
       where: { id },
       data: {
-        ...(name && { name }),
-        ...(category && { category }),
-        ...(collection && { collection }),
+        ...(name !== undefined && { name }),
+        ...(category !== undefined && { category }),
+        ...(collection !== undefined && { collection }),
         ...(priceINR !== undefined && { priceINR: Number(priceINR) }),
         ...(priceUSD !== undefined && { priceUSD: Number(priceUSD) }),
-        ...(description && { description }),
-        ...(material && { material }),
+        ...(sku !== undefined && { sku: sku.trim() }),
+        ...(description !== undefined && { description }),
+        ...(material !== undefined && { material }),
+        ...(dimensions !== undefined && { dimensions }),
+        ...(careInstructions !== undefined && { careInstructions }),
+        ...(deliveryInfo !== undefined && { deliveryInfo }),
         ...(stockQuantity !== undefined && {
           stockQuantity: Number(stockQuantity),
           inStock: Number(stockQuantity) > 0,
@@ -375,7 +401,9 @@ productRouter.put('/:id', async (req: Request, res: Response): Promise<void> => 
         ...(inStock !== undefined && { inStock: Boolean(inStock) }),
       },
       include: {
-        images: true,
+        images: {
+          orderBy: { order: 'asc' },
+        },
         colors: true,
         sizes: true,
       },
@@ -387,7 +415,7 @@ productRouter.put('/:id', async (req: Request, res: Response): Promise<void> => 
     res.json({ message: 'Product updated successfully!', product: updated });
   } catch (err: any) {
     console.error('Update product error:', err);
-    res.status(500).json({ error: 'Failed to update product.' });
+    res.status(500).json({ error: 'Failed to update product: ' + (err.message || 'Unknown error') });
   }
 });
 
