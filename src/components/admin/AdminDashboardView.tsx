@@ -135,10 +135,87 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
     setIsNewProductModalOpen(true);
   };
 
-  // Edit stock/price modal
+  // Comprehensive Edit Product Modal State
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editCategory, setEditCategory] = useState('Crochet');
+  const [editSku, setEditSku] = useState('');
   const [editPriceINR, setEditPriceINR] = useState('');
+  const [editPriceUSD, setEditPriceUSD] = useState('');
   const [editStock, setEditStock] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editDimensions, setEditDimensions] = useState('');
+  const [editCareInstructions, setEditCareInstructions] = useState('');
+  const [editDeliveryInfo, setEditDeliveryInfo] = useState('');
+  const [editMaterial, setEditMaterial] = useState('');
+  const [editImages, setEditImages] = useState<string[]>([]);
+  const [editUrlInput, setEditUrlInput] = useState('');
+  const [isDraggingEditPhotos, setIsDraggingEditPhotos] = useState(false);
+  const [isProcessingEditPhotos, setIsProcessingEditPhotos] = useState(false);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  const openEditProductModal = (p: any) => {
+    setEditingProduct(p);
+    setEditName(p.name || '');
+    setEditCategory(p.category || 'Crochet');
+    setEditSku(p.sku || '');
+    setEditPriceINR(p.priceINR !== undefined && p.priceINR !== null ? String(p.priceINR) : '');
+    setEditPriceUSD(p.priceUSD !== undefined && p.priceUSD !== null ? String(p.priceUSD) : '');
+    setEditStock(p.stockQuantity !== undefined && p.stockQuantity !== null ? String(p.stockQuantity) : '10');
+    setEditDescription(p.description || '');
+    setEditDimensions(p.dimensions || '');
+    setEditCareInstructions(p.careInstructions || '');
+    setEditDeliveryInfo(p.deliveryInfo || '');
+    setEditMaterial(p.material || '');
+
+    const rawImgs = p.images || [];
+    const extracted: string[] = Array.isArray(rawImgs)
+      ? rawImgs.map((img: any) => (typeof img === 'string' ? img : img.url)).filter(Boolean)
+      : [];
+    setEditImages(extracted);
+    setEditUrlInput('');
+  };
+
+  const handleEditFilesSelected = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setIsProcessingEditPhotos(true);
+    const fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    try {
+      const converted = await Promise.all(fileArray.map((f) => processImageFile(f)));
+      setEditImages((prev) => [...prev, ...converted]);
+      showToast(`Added ${converted.length} photo${converted.length === 1 ? '' : 's'} to edit list.`);
+    } catch {
+      showToast('Error processing some image files.');
+    } finally {
+      setIsProcessingEditPhotos(false);
+    }
+  };
+
+  const handleEditAddImageUrl = () => {
+    const trimmed = editUrlInput.trim();
+    if (!trimmed) return;
+    if (editImages.includes(trimmed)) {
+      showToast('This image URL has already been added.');
+      return;
+    }
+    setEditImages((prev) => [...prev, trimmed]);
+    setEditUrlInput('');
+  };
+
+  const handleEditRemoveImage = (indexToRemove: number) => {
+    setEditImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const handleEditSetPrimaryImage = (index: number) => {
+    if (index === 0) return;
+    setEditImages((prev) => {
+      const updated = [...prev];
+      const [selected] = updated.splice(index, 1);
+      updated.unshift(selected);
+      return updated;
+    });
+    showToast('Main cover photo updated!');
+  };
 
   const loadData = async () => {
     setIsLoading(true);
@@ -264,20 +341,54 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
     }
   };
 
-  const handleSaveProductEdit = async () => {
+  const handleSaveProductEdit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!editingProduct) return;
+
+    if (!editName.trim()) {
+      showToast('Product title cannot be empty.');
+      return;
+    }
+
+    let finalImages = [...editImages];
+    if (editUrlInput.trim() && !finalImages.includes(editUrlInput.trim())) {
+      finalImages.push(editUrlInput.trim());
+    }
+
+    if (finalImages.length === 0) {
+      showToast('Please keep at least one product photo.');
+      return;
+    }
+
+    setIsSavingEdit(true);
     try {
       const stock = isNaN(parseInt(editStock, 10)) ? 0 : parseInt(editStock, 10);
+      const priceInr = parseFloat(editPriceINR) || 0;
+      const priceUsd = editPriceUSD ? parseFloat(editPriceUSD) : Math.round(priceInr / 83);
+
       await api.products.update(editingProduct.id, {
-        priceINR: parseFloat(editPriceINR),
+        name: editName.trim(),
+        category: editCategory,
+        sku: editSku.trim() || undefined,
+        priceINR: priceInr,
+        priceUSD: priceUsd,
         stockQuantity: stock,
         inStock: stock > 0,
+        description: editDescription.trim(),
+        dimensions: editDimensions.trim() || undefined,
+        careInstructions: editCareInstructions.trim() || undefined,
+        deliveryInfo: editDeliveryInfo.trim() || undefined,
+        material: editMaterial.trim() || undefined,
+        images: finalImages,
       });
-      showToast(stock === 0 ? 'Product updated & marked as Out of Stock (0 units).' : 'Product updated successfully!');
+
+      showToast(`"${editName.trim()}" updated successfully!`);
       setEditingProduct(null);
       loadData();
     } catch (err: any) {
       showToast(err.message || 'Failed to update product');
+    } finally {
+      setIsSavingEdit(false);
     }
   };
 
@@ -849,11 +960,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                     <td style={{ padding: '10px 16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <button
-                          onClick={() => {
-                            setEditingProduct(p);
-                            setEditPriceINR(String(p.priceINR));
-                            setEditStock(String(p.stockQuantity));
-                          }}
+                          onClick={() => openEditProductModal(p)}
                           style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -865,7 +972,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                             fontSize: '0.78rem',
                             cursor: 'pointer',
                           }}
-                          title="Edit product price & inventory"
+                          title="Edit product details, photos, price & inventory"
                         >
                           <Edit2 size={13} />
                           <span>Edit</span>
@@ -1423,87 +1530,500 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
         </div>
       )}
 
-      {/* Edit Product Modal */}
+      {/* Comprehensive Edit Product Modal */}
       {editingProduct && (
         <div className="modal-backdrop" onClick={() => setEditingProduct(null)}>
           <div
             className="search-modal-container"
-            style={{ maxWidth: '420px', padding: '28px' }}
+            style={{ maxWidth: '680px', maxHeight: '92vh', overflowY: 'auto', padding: '32px' }}
             onClick={(e) => e.stopPropagation()}
           >
             <button className="modal-close-btn" onClick={() => setEditingProduct(null)}>
               <X size={20} />
             </button>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '8px' }}>
-              Quick Edit: {editingProduct.name}
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: '6px' }}>
+              Edit Handcrafted Item
             </h3>
-            <p style={{ fontSize: '0.82rem', color: '#746D66', marginBottom: '16px' }}>
-              Tracking ID / SKU: <strong style={{ fontFamily: 'monospace', color: '#2B2523' }}>{editingProduct.sku}</strong>
+            <p style={{ fontSize: '0.84rem', color: '#746D66', marginBottom: '18px' }}>
+              Modify details, high-res photos, category, pricing, and live inventory status.
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <form onSubmit={handleSaveProductEdit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Price (INR)</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Product Title *</label>
                 <input
-                  type="number"
-                  value={editPriceINR}
-                  onChange={(e) => setEditPriceINR(e.target.value)}
+                  type="text"
+                  required
+                  placeholder="e.g. Crochet Lavender Keychain"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
                   style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
                 />
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>
-                  Stock Quantity <span style={{ fontSize: '0.74rem', color: '#8C827A', fontWeight: 400 }}>(Set to 0 to mark as Out of Stock)</span>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Category</label>
+                  <select
+                    value={editCategory}
+                    onChange={(e) => setEditCategory(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
+                  >
+                    <option value="Crochet">Crochet</option>
+                    <option value="Resin Art">Resin Art</option>
+                    <option value="Name Plates">Name Plates</option>
+                    <option value="Ceramics & Mugs">Ceramics & Mugs</option>
+                    <option value="Plates & Bowls">Plates & Bowls</option>
+                    <option value="Home Decor">Home Decor</option>
+                    <option value="Lipan">Lipan</option>
+                    <option value="Keychain">Keychain</option>
+                  </select>
+                </div>
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Product Tracking ID / SKU *</label>
+                    <span
+                      style={{
+                        fontSize: '0.66rem',
+                        backgroundColor: '#F5EFEB',
+                        color: '#C48B71',
+                        fontWeight: 600,
+                        padding: '1px 6px',
+                        borderRadius: '4px',
+                      }}
+                    >
+                      Tracking Ref
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <input
+                      type="text"
+                      required
+                      value={editSku}
+                      onChange={(e) => setEditSku(e.target.value)}
+                      placeholder="e.g. SRJ-CRO-123456"
+                      style={{
+                        flex: 1,
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        border: '1px solid #EBE4DA',
+                        fontFamily: 'monospace',
+                        fontWeight: 600,
+                        letterSpacing: '0.04em',
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setEditSku(generateNewTrackingSku(editCategory))}
+                      title="Generate new unique tracking code"
+                      style={{
+                        padding: '8px 10px',
+                        borderRadius: '6px',
+                        border: '1px solid #EBE4DA',
+                        backgroundColor: '#FFF',
+                        cursor: 'pointer',
+                        color: '#5A524C',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <RefreshCw size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Price (INR) *</label>
+                  <input
+                    type="number"
+                    required
+                    placeholder="2450"
+                    value={editPriceINR}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setEditPriceINR(val);
+                      if (val && !editPriceUSD) {
+                        setEditPriceUSD(String(Math.round(parseFloat(val) / 83)));
+                      }
+                    }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Price (USD) *</label>
+                  <input
+                    type="number"
+                    required
+                    placeholder="30"
+                    value={editPriceUSD}
+                    onChange={(e) => setEditPriceUSD(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>
+                    Stock Units <span style={{ fontSize: '0.72rem', color: '#8C827A' }}>(0 = Out)</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    required
+                    value={editStock}
+                    onChange={(e) => setEditStock(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
+                  />
+                </div>
+              </div>
+
+              {/* Multiple Product Photos Section */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ fontSize: '0.82rem', fontWeight: 600, color: '#2B2523' }}>
+                    Product Photos *{' '}
+                    <span style={{ fontSize: '0.74rem', color: '#8C827A', fontWeight: 400 }}>
+                      ({editImages.length} photo{editImages.length === 1 ? '' : 's'} &bull; First is cover image)
+                    </span>
+                  </label>
+                  {editImages.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setEditImages([])}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#9B1C1C',
+                        fontSize: '0.74rem',
+                        cursor: 'pointer',
+                        padding: 0,
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      Clear All Photos
+                    </button>
+                  )}
+                </div>
+
+                {/* Paste URL Input & Add Button */}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="url"
+                    placeholder="Paste image web URL..."
+                    value={editUrlInput}
+                    onChange={(e) => setEditUrlInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleEditAddImageUrl();
+                      }
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      border: '1px solid #EBE4DA',
+                      fontSize: '0.84rem',
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleEditAddImageUrl}
+                    disabled={!editUrlInput.trim()}
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: '6px',
+                      backgroundColor: editUrlInput.trim() ? '#2B2523' : '#F0EBE5',
+                      color: editUrlInput.trim() ? '#FBF9F5' : '#A0978E',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      cursor: editUrlInput.trim() ? 'pointer' : 'not-allowed',
+                      border: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      transition: 'all 0.15s ease',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <Plus size={14} />
+                    <span>Add URL</span>
+                  </button>
+                </div>
+
+                {/* Drag and Drop / Device File Upload Zone */}
+                <label
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDraggingEditPhotos(true);
+                  }}
+                  onDragLeave={() => setIsDraggingEditPhotos(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDraggingEditPhotos(false);
+                    handleEditFilesSelected(e.dataTransfer.files);
+                  }}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '16px 12px',
+                    borderRadius: '8px',
+                    border: isDraggingEditPhotos ? '2px dashed #C48B71' : '1.5px dashed #DDCFC5',
+                    backgroundColor: isDraggingEditPhotos ? '#F7EBE1' : '#FAF8F5',
+                    cursor: isProcessingEditPhotos ? 'wait' : 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#C48B71' }}>
+                    <Upload size={18} />
+                    <span style={{ fontSize: '0.84rem', fontWeight: 600, color: '#2B2523' }}>
+                      {isProcessingEditPhotos ? 'Processing Photos...' : 'Upload multiple photos from device'}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.74rem', color: '#8C827A' }}>
+                    Click or drag & drop JPG, PNG, WEBP (Select multiple photos at once)
+                  </span>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    disabled={isProcessingEditPhotos}
+                    onChange={(e) => {
+                      handleEditFilesSelected(e.target.files);
+                      e.target.value = '';
+                    }}
+                    style={{ display: 'none' }}
+                  />
                 </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={editStock}
-                  onChange={(e) => setEditStock(e.target.value)}
+
+                {/* Multiple Photos Thumbnail Grid */}
+                {editImages.length > 0 && (
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))',
+                      gap: '10px',
+                      maxHeight: '190px',
+                      overflowY: 'auto',
+                      padding: '10px',
+                      backgroundColor: '#FAF8F5',
+                      borderRadius: '8px',
+                      border: '1px solid #EBE4DA',
+                      marginTop: '4px',
+                    }}
+                  >
+                    {editImages.map((img, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          position: 'relative',
+                          aspectRatio: '1',
+                          borderRadius: '8px',
+                          overflow: 'hidden',
+                          border: idx === 0 ? '2px solid #C48B71' : '1px solid #E0D7CC',
+                          backgroundColor: '#FFF',
+                          boxShadow: idx === 0 ? '0 2px 8px rgba(196, 139, 113, 0.35)' : '0 1px 3px rgba(0,0,0,0.05)',
+                        }}
+                      >
+                        <img
+                          src={img}
+                          alt={`Product photo ${idx + 1}`}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+
+                        {/* Primary Badge or Make Cover Action */}
+                        {idx === 0 ? (
+                          <span
+                            style={{
+                              position: 'absolute',
+                              top: '4px',
+                              left: '4px',
+                              backgroundColor: '#C48B71',
+                              color: '#FFF',
+                              fontSize: '0.58rem',
+                              fontWeight: 700,
+                              padding: '2px 5px',
+                              borderRadius: '4px',
+                              letterSpacing: '0.04em',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '2px',
+                            }}
+                          >
+                            <Star size={9} fill="#FFF" /> Cover
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleEditSetPrimaryImage(idx)}
+                            title="Set as main cover photo"
+                            style={{
+                              position: 'absolute',
+                              top: '4px',
+                              left: '4px',
+                              backgroundColor: 'rgba(43, 37, 35, 0.82)',
+                              color: '#FFF',
+                              fontSize: '0.56rem',
+                              fontWeight: 600,
+                              padding: '2px 5px',
+                              borderRadius: '4px',
+                              border: 'none',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Set Cover
+                          </button>
+                        )}
+
+                        {/* Delete Single Photo */}
+                        <button
+                          type="button"
+                          onClick={() => handleEditRemoveImage(idx)}
+                          title="Remove this photo"
+                          style={{
+                            position: 'absolute',
+                            top: '4px',
+                            right: '4px',
+                            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                            color: '#FFF',
+                            width: '18px',
+                            height: '18px',
+                            borderRadius: '50%',
+                            border: 'none',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: 0,
+                          }}
+                        >
+                          <X size={11} />
+                        </button>
+
+                        <span
+                          style={{
+                            position: 'absolute',
+                            bottom: '3px',
+                            right: '5px',
+                            fontSize: '0.6rem',
+                            color: '#FFF',
+                            fontWeight: 700,
+                            textShadow: '0 1px 2px rgba(0,0,0,0.8)',
+                          }}
+                        >
+                          #{idx + 1}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Description</label>
+                <textarea
+                  rows={3}
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder="Detail the handcrafted process, materials, and artisan care..."
                   style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
                 />
               </div>
 
-              <button
-                onClick={handleSaveProductEdit}
-                style={{
-                  marginTop: '6px',
-                  padding: '10px',
-                  borderRadius: '9999px',
-                  background: '#2B2523',
-                  color: '#FBF9F5',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  border: 'none',
-                }}
-              >
-                Save Changes
-              </button>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Dimensions (Optional)</label>
+                  <input
+                    type="text"
+                    value={editDimensions}
+                    onChange={(e) => setEditDimensions(e.target.value)}
+                    placeholder="e.g. 12 x 8 inches / 30 x 20 cm"
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA', fontSize: '0.84rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Material (Optional)</label>
+                  <input
+                    type="text"
+                    value={editMaterial}
+                    onChange={(e) => setEditMaterial(e.target.value)}
+                    placeholder="e.g. 100% Organic Cotton Yarn, Epoxy Resin"
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA', fontSize: '0.84rem' }}
+                  />
+                </div>
+              </div>
 
-              <button
-                type="button"
-                onClick={() => handleDeleteProduct(editingProduct.id, editingProduct.name)}
-                style={{
-                  padding: '10px',
-                  borderRadius: '9999px',
-                  background: '#FDF2F2',
-                  color: '#9B1C1C',
-                  border: '1px solid #F8B4B4',
-                  fontWeight: 600,
-                  fontSize: '0.84rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                <Trash2 size={14} />
-                <span>Delete This Product</span>
-              </button>
-            </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Care Instructions</label>
+                  <input
+                    type="text"
+                    value={editCareInstructions}
+                    onChange={(e) => setEditCareInstructions(e.target.value)}
+                    placeholder="e.g. Spot clean with damp cloth, avoid harsh sunlight"
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA', fontSize: '0.84rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Delivery Info</label>
+                  <input
+                    type="text"
+                    value={editDeliveryInfo}
+                    onChange={(e) => setEditDeliveryInfo(e.target.value)}
+                    placeholder="e.g. Ships in 2-4 business days"
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA', fontSize: '0.84rem' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+                <button
+                  type="submit"
+                  disabled={isSavingEdit}
+                  style={{
+                    padding: '12px',
+                    borderRadius: '9999px',
+                    background: isSavingEdit ? '#8C827A' : '#2B2523',
+                    color: '#FBF9F5',
+                    fontWeight: 600,
+                    fontSize: '0.92rem',
+                    cursor: isSavingEdit ? 'wait' : 'pointer',
+                    border: 'none',
+                    transition: 'background-color 0.2s ease',
+                  }}
+                >
+                  {isSavingEdit ? 'Saving Changes...' : 'Save All Changes'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleDeleteProduct(editingProduct.id, editingProduct.name)}
+                  style={{
+                    padding: '10px',
+                    borderRadius: '9999px',
+                    background: '#FDF2F2',
+                    color: '#9B1C1C',
+                    border: '1px solid #F8B4B4',
+                    fontWeight: 600,
+                    fontSize: '0.84rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <Trash2 size={14} />
+                  <span>Delete This Product</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
