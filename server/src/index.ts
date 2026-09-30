@@ -12,6 +12,7 @@ import couponRoutes from './routes/coupon.routes.js';
 import reviewRoutes from './routes/review.routes.js';
 import contactRoutes from './routes/contact.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import paymentRoutes from './routes/payment.routes.js';
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use('/api/coupons', couponRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Global 404 handler for API
 app.use('/api/*', (req: Request, res: Response) => {
