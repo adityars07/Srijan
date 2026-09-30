@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ShieldCheck, CheckCircle2, CreditCard, Smartphone, Building2, Truck } from 'lucide-react';
+import { ChevronRight, ShieldCheck, CheckCircle2, CreditCard, Truck } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useCurrency } from '../../context/CurrencyContext';
 import { api } from '../../services/api';
@@ -37,7 +37,6 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
   const [city, setCity] = useState('');
   const [phone, setPhone] = useState('');
   const [shippingMethod, setShippingMethod] = useState<'standard' | 'express' | 'pickup'>('express');
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi' | 'bank'>('upi');
   const [couponCode, setCouponCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
@@ -83,15 +82,16 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
 
     setIsSubmitting(true);
     try {
-      const orderPayload = {
+      // Step 1: Create order + Razorpay order on backend
+      const payload = {
         items: cart.map((item) => ({
           productId: item.product.id,
           productName: item.product.name,
-          productImage: item.product.images?.[0] || '/images/crochet-artisan-floral-bouquet.jpg',
-          colorName: item.selectedColor?.name || null,
-          sizeName: item.selectedSize || 'Standard',
+          productImage: item.product.images?.[0] || null,
           unitPrice: currency === 'INR' ? item.product.priceINR : item.product.priceUSD,
           quantity: item.quantity,
+          colorName: item.selectedColor?.name || null,
+          sizeName: item.selectedSize || 'Standard',
         })),
         shippingAddress: {
           firstName,
@@ -106,20 +106,74 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
         },
         currency,
         shippingMethod,
-        paymentMethod: paymentMethod.toUpperCase(),
         couponCode: promoCode || null,
         guestInfo: { name: `${firstName} ${lastName}`.trim(), email, phone },
       };
 
-      const res = await api.orders.create(orderPayload);
-      setCreatedOrder(res.order);
-      setOrderComplete(true);
-      clearCart();
-      showToast(`Order #${res.order.orderNumber} confirmed & saved in studio database!`);
-      onOrderSuccess();
+      const { razorpayOrderId, dbOrderId, orderNumber, amount, currency: cur, key } =
+        await api.payments.createOrder(payload);
+
+      // Step 2: Open Razorpay Checkout (Live Payment Modal)
+      const options = {
+        key,                          // Public key from backend — never hardcoded
+        amount,                       // Amount in paise/cents — calculated server-side
+        currency: cur,
+        name: 'Srijan — Handcrafted by Rakhi',
+        description: `Order ${orderNumber}`,
+        order_id: razorpayOrderId,    // Real Razorpay order ID
+        prefill: {
+          name: `${firstName} ${lastName}`.trim(),
+          email,
+          contact: phone,
+        },
+        theme: { color: '#C48B71' },
+        handler: async (response: any) => {
+          // Step 3: Verify payment signature on backend
+          try {
+            const result = await api.payments.verify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              dbOrderId,
+            });
+
+            if (result.success) {
+              setCreatedOrder(result.order);
+              setOrderComplete(true);
+              clearCart();
+              showToast(`Payment successful! Order #${orderNumber} confirmed.`);
+              onOrderSuccess();
+            } else {
+              showToast('Payment verification failed. Please contact support.', 'info');
+            }
+          } catch (verifyErr: any) {
+            showToast(verifyErr.message || 'Verification error. Your payment is safe — contact support.', 'info');
+          } finally {
+            setIsSubmitting(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setIsSubmitting(false);
+            showToast('Payment cancelled. You can retry from your pending orders.', 'info');
+          },
+        },
+      };
+
+      if (typeof (window as any).Razorpay === 'undefined') {
+        showToast('Payment SDK is still loading or blocked. Please refresh and try again.', 'info');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on('payment.failed', (failResponse: any) => {
+        showToast(`Payment failed: ${failResponse.error?.description || 'Transaction unsuccessful'}`, 'info');
+        setIsSubmitting(false);
+      });
+      rzp.open();
     } catch (err: any) {
-      showToast(err.message || 'Failed to place order. Please try again.', 'info');
-    } finally {
+      showToast(err.message || 'Failed to initiate payment.', 'info');
       setIsSubmitting(false);
     }
   };
@@ -398,100 +452,44 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
                 </div>
               </div>
 
-              {/* Payment Methods (Exact Terra Style) */}
+              {/* Payment — Powered by Razorpay */}
               <div className="checkout-section-block">
-                <h4 className="checkout-block-heading">Payment Method</h4>
+                <h4 className="checkout-block-heading">Payment</h4>
 
-                <div className="radio-selection-group">
-                  {/* UPI / NetBanking / GPay (India friendly) */}
-                  <label
-                    className={`radio-selection-card ${paymentMethod === 'upi' ? 'active' : ''}`}
-                    onClick={() => setPaymentMethod('upi')}
+                <div
+                  style={{
+                    background: 'linear-gradient(135deg, #FAF7F2 0%, #F4EFEA 100%)',
+                    border: '1px solid #EBE4DA',
+                    borderRadius: '14px',
+                    padding: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '16px',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '12px',
+                      background: '#2B2523',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
                   >
-                    <input
-                      type="radio"
-                      name="payment"
-                      checked={paymentMethod === 'upi'}
-                      onChange={() => setPaymentMethod('upi')}
-                      className="radio-indicator"
-                    />
-                    <div className="radio-card-content">
-                      <div>
-                        <div className="radio-card-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <Smartphone size={16} />
-                          <span>Instant UPI / QR Code / NetBanking</span>
-                        </div>
-                        <div className="radio-card-desc">Google Pay, PhonePe, Paytm, BHIM, or all Indian banks</div>
-                      </div>
+                    <CreditCard size={22} color="#FBF9F5" />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.95rem', color: '#2B2523', marginBottom: '4px' }}>
+                      Secure Payment via Razorpay
                     </div>
-                  </label>
-
-                  {/* Credit Card */}
-                  <label
-                    className={`radio-selection-card ${paymentMethod === 'card' ? 'active' : ''}`}
-                    onClick={() => setPaymentMethod('card')}
-                  >
-                    <input
-                      type="radio"
-                      name="payment"
-                      checked={paymentMethod === 'card'}
-                      onChange={() => setPaymentMethod('card')}
-                      className="radio-indicator"
-                    />
-                    <div className="radio-card-content">
-                      <div>
-                        <div className="radio-card-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <CreditCard size={16} />
-                          <span>Credit / Debit Card</span>
-                        </div>
-                        <div className="radio-card-desc">Visa, MasterCard, RuPay, American Express</div>
-                      </div>
-                    </div>
-                  </label>
-
-                  {/* Bank Deposit */}
-                  <label
-                    className={`radio-selection-card ${paymentMethod === 'bank' ? 'active' : ''}`}
-                    onClick={() => setPaymentMethod('bank')}
-                  >
-                    <input
-                      type="radio"
-                      name="payment"
-                      checked={paymentMethod === 'bank'}
-                      onChange={() => setPaymentMethod('bank')}
-                      className="radio-indicator"
-                    />
-                    <div className="radio-card-content">
-                      <div>
-                        <div className="radio-card-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <Building2 size={16} />
-                          <span>Direct Bank Wire / NEFT</span>
-                        </div>
-                        <div className="radio-card-desc">Manual bank transfer with transaction receipt confirmation</div>
-                      </div>
-                    </div>
-                  </label>
-                </div>
-
-                {/* Credit card inputs if card selected */}
-                {paymentMethod === 'card' && (
-                  <div style={{ background: '#F4EFEA', padding: '18px', borderRadius: '12px', marginTop: '14px' }}>
-                    <div className="form-field">
-                      <label>Card Number</label>
-                      <input type="text" placeholder="4532 •••• •••• 8910" defaultValue="4532 9821 0042 8910" />
-                    </div>
-                    <div className="form-grid-2">
-                      <div className="form-field">
-                        <label>Expiration (MM/YY)</label>
-                        <input type="text" placeholder="12/28" defaultValue="08/27" />
-                      </div>
-                      <div className="form-field">
-                        <label>CVV / CVC</label>
-                        <input type="text" placeholder="123" defaultValue="782" />
-                      </div>
+                    <div style={{ fontSize: '0.82rem', color: '#746D66', lineHeight: 1.4 }}>
+                      UPI • Credit/Debit Cards • NetBanking • Wallets
                     </div>
                   </div>
-                )}
+                </div>
               </div>
 
               {/* Submit CTA */}
@@ -501,12 +499,12 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
                 disabled={isSubmitting}
                 style={{ opacity: isSubmitting ? 0.7 : 1 }}
               >
-                {isSubmitting ? 'Securing Order...' : `Complete Order • ${formatPrice(totalAmount, totalAmount)}`}
+                {isSubmitting ? 'Processing Payment...' : `Pay Now • ${formatPrice(totalAmount, totalAmount)}`}
               </button>
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.8rem', color: '#746D66', marginTop: '14px' }}>
                 <ShieldCheck size={16} color="#2E7D32" />
-                <span>256-bit Encrypted Checkout • Artisan Quality Guarantee</span>
+                <span>256-bit Encrypted • PCI DSS Compliant • Powered by Razorpay</span>
               </div>
             </div>
 
