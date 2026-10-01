@@ -18,6 +18,28 @@ if (RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET) {
   console.warn('⚠️ Razorpay credentials not found in server .env — payment creation will prompt configuration.');
 }
 
+const MIN_AMOUNT_PAISE = 100;
+
+function respondRazorpayApiError(err: unknown, res: Response): boolean {
+  const e = err as {
+    statusCode?: number;
+    error?: { description?: string };
+    message?: string;
+  };
+  const statusCode = e?.statusCode;
+  if (statusCode === 401) {
+    res.status(401).json({ error: 'Razorpay authentication failed. Check API keys.' });
+    return true;
+  }
+  if (statusCode && statusCode >= 400 && statusCode < 500) {
+    res.status(statusCode).json({
+      error: e.error?.description || e.message || 'Razorpay request failed.',
+    });
+    return true;
+  }
+  return false;
+}
+
 export const createPaymentOrder = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
@@ -46,6 +68,9 @@ export const createPaymentOrder = async (req: Request, res: Response): Promise<v
     for (const item of items) {
       const product = await prisma.product.findUnique({
         where: { id: item.productId },
+        include: {
+          images: { orderBy: [{ isPrimary: 'desc' }, { order: 'asc' }], take: 1 },
+        },
       });
 
       if (!product) {
@@ -61,7 +86,11 @@ export const createPaymentOrder = async (req: Request, res: Response): Promise<v
       verifiedItems.push({
         productId: product.id,
         productName: product.name,
-        productImage: item.productImage || '/images/crochet-artisan-floral-bouquet.jpg',
+        productImage:
+          product.images[0]?.url ||
+          (typeof item.productImage === 'string' && !item.productImage.startsWith('data:')
+            ? item.productImage
+            : '/images/crochet-artisan-floral-bouquet.jpg'),
         colorName: item.colorName || null,
         sizeName: item.sizeName || null,
         unitPrice,
@@ -143,6 +172,11 @@ export const createPaymentOrder = async (req: Request, res: Response): Promise<v
     // 5. Create Razorpay order via Razorpay SDK (paise for INR, cents for USD)
     const amountInSmallestUnit = Math.round(totalAmount * 100);
 
+    if (amountInSmallestUnit < MIN_AMOUNT_PAISE) {
+      res.status(400).json({ error: `Minimum payment amount is ${MIN_AMOUNT_PAISE} paise.` });
+      return;
+    }
+
     if (!razorpay) {
       res.status(503).json({
         error: 'Razorpay keys not configured on server. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in server .env.',
@@ -150,16 +184,24 @@ export const createPaymentOrder = async (req: Request, res: Response): Promise<v
       return;
     }
 
-    const razorpayOrder = await razorpay.orders.create({
-      amount: amountInSmallestUnit,
-      currency: currency.toUpperCase(),
-      receipt: orderNumber,
-      notes: {
-        dbOrderId: dbOrder.id,
-        customerEmail: guestInfo?.email || authUser?.email || '',
-        customerName: guestInfo?.name || authUser?.name || '',
-      },
-    });
+    let razorpayOrder;
+    try {
+      razorpayOrder = await razorpay.orders.create({
+        amount: amountInSmallestUnit,
+        currency: currency.toUpperCase(),
+        receipt: orderNumber,
+        notes: {
+          dbOrderId: dbOrder.id,
+          customerEmail: guestInfo?.email || authUser?.email || '',
+          customerName: guestInfo?.name || authUser?.name || '',
+        },
+      });
+    } catch (razorpayErr) {
+      if (respondRazorpayApiError(razorpayErr, res)) {
+        return;
+      }
+      throw razorpayErr;
+    }
 
     // 6. Associate razorpayOrderId with DB order
     await prisma.order.update({
@@ -168,6 +210,7 @@ export const createPaymentOrder = async (req: Request, res: Response): Promise<v
     });
 
     res.status(201).json({
+      order_id: razorpayOrder.id,
       razorpayOrderId: razorpayOrder.id,
       dbOrderId: dbOrder.id,
       orderNumber,
