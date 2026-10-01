@@ -83,11 +83,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
     setIsSubmitting(true);
     try {
       // Step 1: Create order + Razorpay order on backend
+      // Send only IDs and line metadata — never base64 images (cart localStorage can be huge → HTTP 413)
       const payload = {
         items: cart.map((item) => ({
           productId: item.product.id,
           productName: item.product.name,
-          productImage: item.product.images?.[0] || null,
           unitPrice: currency === 'INR' ? item.product.priceINR : item.product.priceUSD,
           quantity: item.quantity,
           colorName: item.selectedColor?.name || null,
