@@ -173,10 +173,36 @@ export const trackOrder = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
+    const resolveItemImage = (name: string, currentImg: string | null) => {
+      if (currentImg && currentImg.trim()) return currentImg;
+      const n = (name || '').toLowerCase();
+      if (n.includes('sling') || n.includes('bag')) return '/images/crochet-sunflower-tote-crossbody.jpg';
+      if (n.includes('dream') || n.includes('catcher')) return '/images/crochet-mandala-dreamcatcher-emerald.jpg';
+      if (n.includes('flower') || n.includes('rose') || n.includes('bouquet')) return '/images/crochet-artisan-floral-bouquet.jpg';
+      if (n.includes('keychain')) return '/images/crochet-daisy-keychains-pair.jpg';
+      if (n.includes('plate') || n.includes('name')) return '/images/buddha_nameplate.jpg';
+      if (n.includes('mug') || n.includes('cup')) return '/images/stoneware_mug.jpg';
+      if (n.includes('bowl')) return '/images/ceramic_plates.jpg';
+      return '/images/crochet-artisan-floral-bouquet.jpg';
+    };
+
+    const enrichedItems = order.items.map((it) => ({
+      ...it,
+      productImage: resolveItemImage(it.productName, it.productImage),
+    }));
+
+    let parsedAddress = {};
+    try {
+      parsedAddress = typeof order.shippingAddress === 'string' ? JSON.parse(order.shippingAddress) : (order.shippingAddress || {});
+    } catch {
+      parsedAddress = {};
+    }
+
     res.json({
       order: {
         ...order,
-        shippingAddress: JSON.parse(order.shippingAddress),
+        shippingAddress: parsedAddress,
+        items: enrichedItems,
       },
     });
   } catch (err: any) {
