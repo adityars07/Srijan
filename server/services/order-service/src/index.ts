@@ -25,7 +25,7 @@ if (RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET) {
     key_id: RAZORPAY_KEY_ID,
     key_secret: RAZORPAY_KEY_SECRET,
   });
-  console.log('💳 Razorpay client initialized (Live Mode)');
+  console.log(`💳 Razorpay client initialized: ${RAZORPAY_KEY_ID.startsWith('rzp_live') ? 'LIVE PRODUCTION MODE' : 'TEST MODE'}`);
 } else {
   console.warn('⚠️ Razorpay keys not configured — payment endpoints will return errors. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in .env');
 }
@@ -33,7 +33,7 @@ if (RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET) {
 const prisma = new PrismaClient();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '2mb' }));
 
 // Helper to extract user from optional Bearer token
 function getAuthUser(req: Request): any | null {
@@ -331,7 +331,31 @@ orderRouter.get('/track/:orderNumberOrTracking', async (req: Request, res: Respo
       return;
     }
 
-    res.json({ order });
+    // Helper to resolve fallback product images if null in DB
+    const resolveItemImage = (name: string, currentImg: string | null) => {
+      if (currentImg && currentImg.trim()) return currentImg;
+      const n = (name || '').toLowerCase();
+      if (n.includes('sling') || n.includes('bag')) return '/images/crochet-sunflower-tote-crossbody.jpg';
+      if (n.includes('dream') || n.includes('catcher')) return '/images/crochet-mandala-dreamcatcher-emerald.jpg';
+      if (n.includes('flower') || n.includes('rose') || n.includes('bouquet')) return '/images/crochet-artisan-floral-bouquet.jpg';
+      if (n.includes('keychain')) return '/images/crochet-daisy-keychains-pair.jpg';
+      if (n.includes('plate') || n.includes('name')) return '/images/buddha_nameplate.jpg';
+      if (n.includes('mug') || n.includes('cup')) return '/images/stoneware_mug.jpg';
+      if (n.includes('bowl')) return '/images/ceramic_plates.jpg';
+      return '/images/crochet-artisan-floral-bouquet.jpg';
+    };
+
+    const enrichedItems = order.items.map((it) => ({
+      ...it,
+      productImage: resolveItemImage(it.productName, it.productImage),
+    }));
+
+    res.json({
+      order: {
+        ...order,
+        items: enrichedItems,
+      },
+    });
   } catch (err: any) {
     console.error('Track order error:', err);
     res.status(500).json({ error: 'Failed to track order.' });
@@ -592,6 +616,11 @@ paymentRouter.post('/create-order', async (req: Request, res: Response): Promise
 
     // 7. Create Razorpay order (amount in smallest currency unit: paise/cents)
     const amountInSmallestUnit = Math.round(totalAmount * 100);
+
+    if (amountInSmallestUnit < 100) {
+      res.status(400).json({ error: 'Minimum payment amount is 100 paise.' });
+      return;
+    }
 
     const razorpayOrder = await razorpay.orders.create({
       amount: amountInSmallestUnit,
