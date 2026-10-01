@@ -3149,3 +3149,341 @@ img {
     font-size: 0.8rem;
   }
 }
+
+/* =========================================================
+   ORDER TRACKING & LOGISTICS DESIGN
+   ========================================================= */
+
+.tracking-card {
+  background: #FAF7F2;
+  border-radius: 20px;
+  border: 1px solid #EBE4DA;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(43, 37, 35, 0.05);
+}
+
+.tracking-header-bar {
+  background: linear-gradient(135deg, #24201E 0%, #2E2825 100%);
+  color: #FBF9F5;
+  padding: 28px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  border-bottom: 1px solid rgba(196, 139, 113, 0.2);
+}
+
+.tracking-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tracking-header-label {
+  font-size: 0.76rem;
+  color: #C48B71;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.tracking-order-num-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tracking-order-num {
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #FAF7F2;
+  letter-spacing: -0.01em;
+}
+
+.tracking-copy-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #FAF7F2;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tracking-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: #FFFFFF;
+}
+
+.tracking-status-chip {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tracking-status-chip.dispatched {
+  background: rgba(30, 136, 229, 0.15);
+  color: #64B5F6;
+  border: 1px solid rgba(100, 181, 246, 0.3);
+}
+
+.tracking-status-chip.delivered {
+  background: rgba(46, 125, 50, 0.15);
+  color: #81C784;
+  border: 1px solid rgba(129, 199, 132, 0.3);
+}
+
+.tracking-status-chip.crafting {
+  background: rgba(245, 127, 23, 0.15);
+  color: #FFD54F;
+  border: 1px solid rgba(255, 213, 79, 0.3);
+}
+
+.tracking-status-chip.confirmed {
+  background: rgba(196, 139, 113, 0.2);
+  color: #E2B7A0;
+  border: 1px solid rgba(226, 183, 160, 0.3);
+}
+
+.tracking-courier-box {
+  text-align: right;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tracking-courier-label {
+  font-size: 0.72rem;
+  color: #BDB3A6;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tracking-courier-num {
+  font-family: monospace;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #F8F3EA;
+  margin-top: 2px;
+}
+
+/* Stepper Bar */
+.tracking-stepper-container {
+  padding: 44px 36px 36px;
+  background: #FAF7F2;
+  border-bottom: 1px solid #EBE4DA;
+  position: relative;
+}
+
+.tracking-stepper-desktop {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.tracking-track-bg {
+  position: absolute;
+  top: 23px;
+  left: 55px;
+  right: 55px;
+  height: 4px;
+  background: #E8E0D5;
+  z-index: 1;
+  border-radius: 9999px;
+}
+
+.tracking-track-fill {
+  position: absolute;
+  top: 23px;
+  left: 55px;
+  height: 4px;
+  background: linear-gradient(90deg, #2B2523 0%, #C48B71 100%);
+  z-index: 1;
+  border-radius: 9999px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tracking-step-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  max-width: 175px;
+}
+
+.tracking-node-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FAF7F2;
+  transition: all 0.3s ease;
+}
+
+.tracking-step-node.completed .tracking-node-icon {
+  background: #2B2523;
+  color: #FAF7F2;
+  box-shadow: 0 4px 14px rgba(43, 37, 35, 0.2);
+}
+
+.tracking-step-node.current .tracking-node-icon {
+  background: #C48B71;
+  color: #FFFFFF;
+  box-shadow: 0 0 0 6px rgba(196, 139, 113, 0.22), 0 4px 16px rgba(196, 139, 113, 0.4);
+}
+
+.tracking-step-node.upcoming .tracking-node-icon {
+  background: #FAF7F2;
+  color: #A89E94;
+  border: 2px solid #DED4C7;
+}
+
+.tracking-node-title {
+  margin-top: 14px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #2B2523;
+}
+
+.tracking-step-node.upcoming .tracking-node-title {
+  color: #9C948B;
+}
+
+.tracking-node-desc {
+  margin-top: 4px;
+  font-size: 0.77rem;
+  color: #746D66;
+  line-height: 1.35;
+}
+
+.tracking-active-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  background: #F3EAE5;
+  border: 1px solid #DFCCBF;
+  color: #A65738;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Mobile Vertical Stepper */
+.tracking-stepper-mobile {
+  display: none;
+  flex-direction: column;
+  gap: 22px;
+  position: relative;
+  padding-left: 10px;
+}
+
+.tracking-vertical-line {
+  position: absolute;
+  top: 24px;
+  bottom: 24px;
+  left: 33px;
+  width: 3px;
+  background: #E8E0D5;
+  border-radius: 9999px;
+}
+
+.tracking-mobile-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Tracking Details Grid */
+.tracking-details-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 28px;
+  padding: 34px 32px;
+}
+
+.tracking-items-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid #EBE4DA;
+  box-shadow: 0 2px 8px rgba(43, 37, 35, 0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tracking-items-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(43, 37, 35, 0.06);
+}
+
+.tracking-item-thumb {
+  width: 72px;
+  height: 72px;
+  min-width: 72px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #F4EFEA;
+  border: 1px solid #E5DDD3;
+}
+
+.tracking-delivery-box {
+  background: #F4EFEA;
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid #E8DFD3;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: fit-content;
+}
+
+@media (max-width: 768px) {
+  .tracking-stepper-desktop {
+    display: none;
+  }
+  .tracking-stepper-mobile {
+    display: flex;
+  }
+  .tracking-details-grid {
+    grid-template-columns: 1fr;
+    padding: 20px 16px;
+  }
+  .tracking-header-bar {
+    padding: 20px 16px;
+  }
+  .tracking-stepper-container {
+    padding: 24px 16px;
+  }
+  .tracking-courier-box {
+    text-align: left;
+    width: 100%;
+  }
+}
+
