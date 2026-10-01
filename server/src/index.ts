@@ -13,6 +13,8 @@ import reviewRoutes from './routes/review.routes.js';
 import contactRoutes from './routes/contact.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
+import { createPaymentOrder, verifyPaymentSignature } from './controllers/payment.controller.js';
+import { optionalAuth } from './middlewares/auth.js';
 
 dotenv.config();
 
@@ -51,6 +53,10 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payments', paymentRoutes);
+
+// Razorpay Standard Checkout (documentation-style paths)
+app.post('/api/create-order', optionalAuth, createPaymentOrder);
+app.post('/api/verify-payment', verifyPaymentSignature);
 
 // Global 404 handler for API
 app.use('/api/*', (req: Request, res: Response) => {
