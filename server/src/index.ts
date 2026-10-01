@@ -30,6 +30,10 @@ const allowedOrigins = [
   'http://localhost:5174',
   'http://localhost:5173',
   'http://localhost:3000',
+  'https://srijan-handmadebyrakhi.com',
+  'https://www.srijan-handmadebyrakhi.com',
+  'http://srijan-handmadebyrakhi.com',
+  'http://www.srijan-handmadebyrakhi.com',
 ];
 if (process.env.CLIENT_URL) {
   allowedOrigins.push(process.env.CLIENT_URL);
@@ -41,7 +45,8 @@ app.use(cors({
     if (!origin) return callback(null, true);
     if (
       allowedOrigins.includes(origin) ||
-      origin.endsWith('.vercel.app')  // Allow all Vercel preview deploys
+      origin.endsWith('.vercel.app') ||  // Allow all Vercel preview deploys
+      origin.endsWith('srijan-handmadebyrakhi.com')  // Custom domain
     ) {
       return callback(null, true);
     }
