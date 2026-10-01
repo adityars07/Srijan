@@ -8,19 +8,19 @@ interface CategoryShowcaseProps {
 export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ onSelectCategory }) => {
   const showcaseItems = [
     {
-      name: 'Stoneware & Cups',
-      category: 'Ceramics & Mugs',
-      image: '/images/stoneware_mug.jpg',
-    },
-    {
-      name: 'Crochet & Blooms',
+      name: 'Artisan Bouquets & Blooms',
       category: 'Crochet',
       image: '/images/crochet-artisan-floral-bouquet.jpg',
     },
     {
-      name: 'Resin Keepsakes',
-      category: 'Resin Art',
-      image: '/images/resin_frame.jpg',
+      name: 'Heirloom Bags & Totes',
+      category: 'Crochet',
+      image: '/images/crochet-sunflower-tote-crossbody.jpg',
+    },
+    {
+      name: 'Dreamcatchers & Wall Art',
+      category: 'Crochet',
+      image: '/images/crochet-mandala-dreamcatcher-lavender.jpg',
     },
   ];
 

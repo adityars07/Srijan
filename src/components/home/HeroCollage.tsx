@@ -161,17 +161,17 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
             <div
               className="hero-image-tile"
               onClick={() => handleTileClick(tile1)}
-              title={tile1?.name?.trim() || 'Tableware Creations'}
+              title={tile1?.name?.trim() || 'Artisan Totes'}
             >
               <img
-                src={tile1?.images?.[0] || '/images/ceramic_plates.jpg'}
-                alt={tile1?.name?.trim() || 'Handcrafted ceramic dinner plate with dried pampas'}
+                src={tile1?.images?.[0] || '/images/crochet-sunflower-tote-crossbody.jpg'}
+                alt={tile1?.name?.trim() || 'Handcrafted sunflower tote bag'}
                 style={{ objectPosition: getProductObjectPosition(tile1) }}
               />
               <div className="hero-tile-gradient" />
               <span className="hero-tile-pill">{tile1?.category || 'Handcrafted'}</span>
               <div className="hero-tile-caption">
-                <h3 className="hero-tile-name">{tile1?.name?.trim() || 'Handcrafted Creation'}</h3>
+                <h3 className="hero-tile-name">{tile1?.name?.trim() || 'Sunflower Tote'}</h3>
                 {tile1?.priceINR && (
                   <div className="hero-tile-price">₹{tile1.priceINR.toLocaleString('en-IN')}</div>
                 )}
@@ -185,17 +185,17 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
             <div
               className="hero-image-tile"
               onClick={() => handleTileClick(tile2)}
-              title={tile2?.name?.trim() || 'Resin Keepsakes'}
+              title={tile2?.name?.trim() || 'Mandala Dreamcatcher'}
             >
               <img
-                src={tile2?.images?.[0] || '/images/resin_frame.jpg'}
-                alt={tile2?.name?.trim() || 'Botanical resin art frame with gold flecks'}
+                src={tile2?.images?.[0] || '/images/crochet-mandala-dreamcatcher-lavender.jpg'}
+                alt={tile2?.name?.trim() || 'Serenity Lavender Mandala Crochet Dreamcatcher'}
                 style={{ objectPosition: getProductObjectPosition(tile2) }}
               />
               <div className="hero-tile-gradient" />
               <span className="hero-tile-pill">{tile2?.category || 'Handcrafted'}</span>
               <div className="hero-tile-caption">
-                <h3 className="hero-tile-name">{tile2?.name?.trim() || 'Resin Keepsakes'}</h3>
+                <h3 className="hero-tile-name">{tile2?.name?.trim() || 'Mandala Dreamcatcher'}</h3>
                 {tile2?.priceINR && (
                   <div className="hero-tile-price">₹{tile2.priceINR.toLocaleString('en-IN')}</div>
                 )}
@@ -236,17 +236,17 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
             <div
               className="hero-image-tile"
               onClick={() => handleTileClick(tile4)}
-              title={tile4?.name?.trim() || 'Artisan Cups'}
+              title={tile4?.name?.trim() || 'Potted Sunflowers'}
             >
               <img
-                src={tile4?.images?.[0] || '/images/stoneware_mug.jpg'}
-                alt={tile4?.name?.trim() || 'Artisan stoneware cup'}
+                src={tile4?.images?.[0] || '/images/crochet-potted-sunflowers.jpg'}
+                alt={tile4?.name?.trim() || 'Twin Blooming Crochet Sunflowers'}
                 style={{ objectPosition: getProductObjectPosition(tile4) }}
               />
               <div className="hero-tile-gradient" />
               <span className="hero-tile-pill">{tile4?.category || 'Handcrafted'}</span>
               <div className="hero-tile-caption">
-                <h3 className="hero-tile-name">{tile4?.name?.trim() || 'Artisan Cups'}</h3>
+                <h3 className="hero-tile-name">{tile4?.name?.trim() || 'Potted Sunflowers'}</h3>
                 {tile4?.priceINR && (
                   <div className="hero-tile-price">₹{tile4.priceINR.toLocaleString('en-IN')}</div>
                 )}

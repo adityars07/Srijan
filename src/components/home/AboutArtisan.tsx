@@ -13,8 +13,8 @@ export const AboutArtisan: React.FC<AboutArtisanProps> = ({ onContactClick }) =>
           {/* Left Arched Crafting Visual */}
           <div className="story-arch-wrap">
             <img
-              src="/images/potter_hands.jpg"
-              alt="Hands shaping artisanal clay pottery"
+              src="/images/artisan_rakhi.jpg"
+              alt="Rakhi crafting artisanal crochet treasures"
             />
             <div className="story-floating-tag">
               <Sparkles size={16} color="#C48B71" />
