@@ -50,14 +50,11 @@ export const Header: React.FC<HeaderProps> = ({
 
   const categories = [
     'All Creations',
-    'Crochet',
-    'Resin Art',
-    'Name Plates',
-    'Ceramics & Mugs',
-    'Plates & Bowls',
-    'Home Decor',
-    'Lipan',
-    'Keychain',
+    'Floral & Bouquets',
+    'Bags & Totes',
+    'Wall Art & Decor',
+    'Amigurumi & Keychains',
+    'Everyday Accessories',
   ];
 
   return (

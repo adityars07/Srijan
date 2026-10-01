@@ -11,12 +11,11 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
 }) => {
   const categories = [
     'All Creations',
-    'Crochet',
-    'Resin Art',
-    'Name Plates',
-    'Ceramics & Mugs',
-    'Plates & Bowls',
-    'Home Decor',
+    'Floral & Bouquets',
+    'Bags & Totes',
+    'Wall Art & Decor',
+    'Amigurumi & Keychains',
+    'Everyday Accessories',
   ];
 
   return (

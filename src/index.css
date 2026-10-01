@@ -713,6 +713,60 @@ img {
   gap: 22px;
 }
 
+/* Shop Catalog Layout — Desktop 2-Column Sidebar + Grid */
+.shop-layout-container {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 40px;
+  align-items: flex-start;
+  margin-top: 24px;
+}
+
+.shop-desktop-sidebar {
+  position: sticky;
+  top: 96px;
+  background: #FCFBF9;
+  border: 1px solid #EBE4DA;
+  border-radius: 16px;
+  padding: 24px 20px;
+}
+
+.shop-products-main {
+  min-width: 0;
+  width: 100%;
+}
+
+.products-grid.shop-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 1200px) {
+  .products-grid.shop-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 900px) {
+  .shop-layout-container {
+    display: block;
+  }
+  .shop-desktop-sidebar {
+    display: none;
+  }
+  .products-grid.shop-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 580px) {
+  .products-grid.shop-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .product-card {
   display: flex;
   flex-direction: column;

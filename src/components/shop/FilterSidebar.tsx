@@ -16,27 +16,23 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   const { currency } = useCurrency();
 
   const categories = [
-    'Crochet',
-    'Resin Art',
-    'Name Plates',
-    'Ceramics & Mugs',
-    'Plates & Bowls',
-    'Home Decor',
+    'Floral & Bouquets',
+    'Bags & Totes',
+    'Wall Art & Decor',
+    'Amigurumi & Keychains',
+    'Everyday Accessories',
   ];
 
   const collections = [
-    'Heritage Resin',
-    'Earth & Clay',
     'Boho Blooms',
-    'Minimalist Stoneware',
     'Signature Srijan',
   ];
 
   const priceRanges = [
-    { label: currency === 'INR' ? 'Under ₹2,000' : 'Under $25', min: 0, max: currency === 'INR' ? 2000 : 25 },
-    { label: currency === 'INR' ? '₹2,000 - ₹3,500' : '$25 - $45', min: currency === 'INR' ? 2000 : 25, max: currency === 'INR' ? 3500 : 45 },
-    { label: currency === 'INR' ? '₹3,500 - ₹5,000' : '$45 - $65', min: currency === 'INR' ? 3500 : 45, max: currency === 'INR' ? 5000 : 65 },
-    { label: currency === 'INR' ? 'Above ₹5,000' : 'Above $65', min: currency === 'INR' ? 5000 : 65, max: 999999 },
+    { label: currency === 'INR' ? 'Under ₹600' : 'Under $8', min: 0, max: currency === 'INR' ? 600 : 8 },
+    { label: currency === 'INR' ? '₹600 - ₹1,200' : '$8 - $15', min: currency === 'INR' ? 600 : 8, max: currency === 'INR' ? 1200 : 15 },
+    { label: currency === 'INR' ? '₹1,200 - ₹2,000' : '$15 - $25', min: currency === 'INR' ? 1200 : 15, max: currency === 'INR' ? 2000 : 25 },
+    { label: currency === 'INR' ? 'Above ₹2,000' : 'Above $25', min: currency === 'INR' ? 2000 : 25, max: 999999 },
   ];
 
   const toggleCategory = (cat: string) => {
@@ -60,7 +56,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   };
 
   return (
-    <aside style={{ width: '240px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '28px' }}>
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '26px' }}>
       {/* Category Checkboxes */}
       <div>
         <h5 style={{ fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '14px', color: '#2B2523' }}>
@@ -173,6 +169,6 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       >
         Reset All Filters
       </button>
-    </aside>
+    </div>
   );
 };
