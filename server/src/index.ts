@@ -53,8 +53,8 @@ app.use(express.json({ limit: '50mb' }));
 // Serve static images from parent public/images if needed
 app.use('/images', express.static(path.join(__dirname, '../../public/images')));
 
-// API Health Check
-app.get('/api/health', (_req: Request, res: Response) => {
+// API Health Check (supports root /, /health, and /api/health)
+app.get(['/', '/health', '/api/health'], (_req: Request, res: Response) => {
   res.json({
     status: 'online',
     service: 'Srijan Artisanal API',
