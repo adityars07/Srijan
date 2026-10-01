@@ -1,7 +1,28 @@
 version: '3.8'
 
 services:
-  # 0. Redis In-Memory Cache & Ephemeral Store
+  # 0. PostgreSQL Database (replaces SQLite files)
+  postgres:
+    image: postgres:16-alpine
+    container_name: srijan-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=srijan
+      - POSTGRES_PASSWORD=srijan_dev_2026
+      - POSTGRES_DB=srijan_main
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # Init script to create separate databases for each service
+      - ./server/scripts/init-databases.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U srijan"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 0b. Redis In-Memory Cache & Ephemeral Store
   redis:
     image: redis:7-alpine
     container_name: srijan-redis
@@ -22,13 +43,14 @@ services:
       - "5001:5001"
     environment:
       - PORT=5001
-      - DATABASE_URL=file:./auth.db
+      - DATABASE_URL=postgresql://srijan:srijan_dev_2026@postgres:5432/srijan_auth?schema=public
       - JWT_SECRET=srijan_artisan_secret_key_2026_super_secure_jwt
       - REDIS_URL=redis://redis:6379
     depends_on:
-      - redis
-    volumes:
-      - auth-db-data:/app/prisma
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   # 2. Product & Review Service
   product-service:
@@ -40,12 +62,13 @@ services:
       - "5002:5002"
     environment:
       - PORT=5002
-      - DATABASE_URL=file:./products.db
+      - DATABASE_URL=postgresql://srijan:srijan_dev_2026@postgres:5432/srijan_products?schema=public
       - REDIS_URL=redis://redis:6379
     depends_on:
-      - redis
-    volumes:
-      - product-db-data:/app/prisma
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   # 3. Order & Coupon Service
   order-service:
@@ -57,13 +80,14 @@ services:
       - "5003:5003"
     environment:
       - PORT=5003
-      - DATABASE_URL=file:./orders.db
+      - DATABASE_URL=postgresql://srijan:srijan_dev_2026@postgres:5432/srijan_orders?schema=public
       - PRODUCT_SERVICE_URL=http://product-service:5002
       - JWT_SECRET=srijan_artisan_secret_key_2026_super_secure_jwt
     depends_on:
-      - product-service
-    volumes:
-      - order-db-data:/app/prisma
+      postgres:
+        condition: service_healthy
+      product-service:
+        condition: service_started
 
   # 4. Commission & Contact Service
   commission-service:
@@ -75,9 +99,10 @@ services:
       - "5004:5004"
     environment:
       - PORT=5004
-      - DATABASE_URL=file:./commissions.db
-    volumes:
-      - commission-db-data:/app/prisma
+      - DATABASE_URL=postgresql://srijan:srijan_dev_2026@postgres:5432/srijan_commissions?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   # 5. API Gateway
   api-gateway:
@@ -100,8 +125,5 @@ services:
       - commission-service
 
 volumes:
+  postgres-data:
   redis-data:
-  auth-db-data:
-  product-db-data:
-  order-db-data:
-  commission-db-data:

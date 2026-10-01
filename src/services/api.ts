@@ -1,6 +1,8 @@
 // Central API service connecting React to Node.js/Express backend
+// In production (Vercel), VITE_API_URL points to the Render backend (e.g. https://srijan-api.onrender.com/api)
+// In local dev, the Vite proxy handles /api → localhost:5000
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 function getAuthHeader(): Record<string, string> {
   const token = localStorage.getItem('srijan_token');
