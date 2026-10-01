@@ -15,6 +15,7 @@ import adminRoutes from './routes/admin.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import { createPaymentOrder, verifyPaymentSignature } from './controllers/payment.controller.js';
 import { optionalAuth } from './middlewares/auth.js';
+import { prisma } from './config/db.js';
 
 dotenv.config();
 
@@ -54,10 +55,22 @@ app.use(express.json({ limit: '50mb' }));
 app.use('/images', express.static(path.join(__dirname, '../../public/images')));
 
 // API Health Check (supports root /, /health, and /api/health)
-app.get(['/', '/health', '/api/health'], (_req: Request, res: Response) => {
+app.get(['/', '/health', '/api/health'], async (_req: Request, res: Response) => {
+  let dbStatus = 'disconnected';
+  let dbError: string | null = null;
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    dbStatus = 'connected';
+  } catch (err: any) {
+    dbStatus = 'error';
+    dbError = err?.message || 'Database connection failed';
+  }
+
   res.json({
     status: 'online',
     service: 'Srijan Artisanal API',
+    database: dbStatus,
+    ...(dbError && { error: dbError }),
     timestamp: new Date().toISOString(),
   });
 });
