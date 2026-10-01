@@ -22,6 +22,11 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
+    if (response.status === 413) {
+      throw new Error(
+        'Order request was too large. Refresh the page, clear your cart, and add items again from the shop.'
+      );
+    }
     const errorMsg = data.error || data.message || `Request failed with status ${response.status}`;
     throw new Error(errorMsg);
   }
