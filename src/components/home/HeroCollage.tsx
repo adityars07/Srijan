@@ -96,7 +96,7 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
                 Handcrafted Elegance for Your Home
               </h1>
               <p className="hero-description">
-                Discover bespoke artisan treasures: everlasting crochet blooms, preserved botanical resin frames, wheel-thrown stoneware, and personalized entrance plaques.
+                Discover bespoke artisan treasures: everlasting crochet blooms, preserved botanical resin frames, artisan crochet accessories, and personalized entrance plaques.
               </p>
             </div>
 
@@ -148,10 +148,6 @@ export const HeroCollage: React.FC<HeroCollageProps> = ({
                   </button>
                 </div>
               )}
-
-              <div className="hero-tile-btn" style={{ zIndex: 2 }}>
-                <ArrowUpRight size={17} />
-              </div>
             </div>
           </div>
 
