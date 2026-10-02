@@ -64,20 +64,34 @@ export const createPaymentOrder = async (req: Request, res: Response): Promise<v
       return;
     }
 
+    const rzp = getRazorpayClient();
+    if (!rzp) {
+      res.status(503).json({
+        error: 'Razorpay keys not configured on server. Please add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to the Environment tab in your Render Dashboard.',
+      });
+      return;
+    }
+
     // 1. Calculate subtotal securely from database
     let subtotal = 0;
     const verifiedItems: any[] = [];
 
     for (const item of items) {
+      const targetId = item.productId || item.id;
+      if (!targetId) {
+        res.status(400).json({ error: 'Each item must have a valid productId.' });
+        return;
+      }
+
       const product = await prisma.product.findUnique({
-        where: { id: item.productId },
+        where: { id: targetId },
         include: {
           images: { orderBy: [{ isPrimary: 'desc' }, { order: 'asc' }], take: 1 },
         },
       });
 
       if (!product) {
-        res.status(400).json({ error: `Product not found: ${item.productName || item.productId}` });
+        res.status(400).json({ error: `Product not found: ${item.productName || targetId}` });
         return;
       }
 
@@ -177,14 +191,6 @@ export const createPaymentOrder = async (req: Request, res: Response): Promise<v
 
     if (amountInSmallestUnit < MIN_AMOUNT_PAISE) {
       res.status(400).json({ error: `Minimum payment amount is ${MIN_AMOUNT_PAISE} paise.` });
-      return;
-    }
-
-    const rzp = getRazorpayClient();
-    if (!rzp) {
-      res.status(503).json({
-        error: 'Razorpay keys not configured on server. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in server .env.',
-      });
       return;
     }
 
