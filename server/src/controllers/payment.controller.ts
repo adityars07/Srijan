@@ -3,19 +3,22 @@ import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import { prisma } from '../config/db.js';
 
-const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
-const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
-
 let razorpay: InstanceType<typeof Razorpay> | null = null;
-if (RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET) {
-  razorpay = new Razorpay({
-    key_id: RAZORPAY_KEY_ID,
-    key_secret: RAZORPAY_KEY_SECRET,
-  });
-  console.log('💳 Razorpay client initialized in monolith (Live Mode)');
-} else {
-  console.warn('⚠️ Razorpay credentials not found in server .env — payment creation will prompt configuration.');
+
+function getRazorpayClient() {
+  if (razorpay) return razorpay;
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  
+  if (keyId && keySecret) {
+    razorpay = new Razorpay({
+      key_id: keyId,
+      key_secret: keySecret,
+    });
+    console.log('💳 Razorpay client initialized dynamically (Live Mode)');
+    return razorpay;
+  }
+  return null;
 }
 
 const MIN_AMOUNT_PAISE = 100;
@@ -177,7 +180,8 @@ export const createPaymentOrder = async (req: Request, res: Response): Promise<v
       return;
     }
 
-    if (!razorpay) {
+    const rzp = getRazorpayClient();
+    if (!rzp) {
       res.status(503).json({
         error: 'Razorpay keys not configured on server. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in server .env.',
       });
@@ -186,7 +190,7 @@ export const createPaymentOrder = async (req: Request, res: Response): Promise<v
 
     let razorpayOrder;
     try {
-      razorpayOrder = await razorpay.orders.create({
+      razorpayOrder = await rzp.orders.create({
         amount: amountInSmallestUnit,
         currency: currency.toUpperCase(),
         receipt: orderNumber,
@@ -216,7 +220,7 @@ export const createPaymentOrder = async (req: Request, res: Response): Promise<v
       orderNumber,
       amount: amountInSmallestUnit,
       currency: currency.toUpperCase(),
-      key: RAZORPAY_KEY_ID,
+      key: process.env.RAZORPAY_KEY_ID,
     });
   } catch (err: any) {
     console.error('Payment order creation error:', err);
@@ -226,7 +230,7 @@ export const createPaymentOrder = async (req: Request, res: Response): Promise<v
 
 export const verifyPaymentSignature = async (req: Request, res: Response): Promise<void> => {
   try {
-    if (!RAZORPAY_KEY_SECRET) {
+    if (!process.env.RAZORPAY_KEY_SECRET) {
       res.status(503).json({ error: 'Razorpay secret key not configured on server.' });
       return;
     }
@@ -240,7 +244,7 @@ export const verifyPaymentSignature = async (req: Request, res: Response): Promi
 
     // Cryptographic HMAC-SHA256 signature verification
     const expectedSignature = crypto
-      .createHmac('sha256', RAZORPAY_KEY_SECRET)
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET as string)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest('hex');
 

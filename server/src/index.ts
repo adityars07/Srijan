@@ -1,6 +1,6 @@
+import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -16,8 +16,6 @@ import paymentRoutes from './routes/payment.routes.js';
 import { createPaymentOrder, verifyPaymentSignature } from './controllers/payment.controller.js';
 import { optionalAuth } from './middlewares/auth.js';
 import { prisma } from './config/db.js';
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
