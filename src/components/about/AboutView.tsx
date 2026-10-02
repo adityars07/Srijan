@@ -23,30 +23,28 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
           </p>
         </div>
 
-        {/* Big Visual Grid */}
+        {/* Curated Studio Gallery */}
         <div className="about-visual-grid">
-          <div className="about-main-img-wrap">
+          <div className="about-gallery-card">
             <img
               src="/images/crochet-potted-sunflowers.jpg"
               alt="Handcrafted crochet potted sunflowers"
             />
             <div className="about-img-tag">Crochet Botanicals</div>
           </div>
-          <div className="about-sub-imgs-col">
-            <div className="about-sub-img-wrap">
-              <img
-                src="/images/crochet_bouquet.jpg"
-                alt="Artisanal crochet floral bouquet"
-              />
-              <div className="about-img-tag">Heirloom Bouquets</div>
-            </div>
-            <div className="about-sub-img-wrap">
-              <img
-                src="/images/resin_frame.jpg"
-                alt="Botanical resin floral casting"
-              />
-              <div className="about-img-tag">Botanical Resin Art</div>
-            </div>
+          <div className="about-gallery-card">
+            <img
+              src="/images/crochet_bouquet.jpg"
+              alt="Artisanal crochet floral bouquet"
+            />
+            <div className="about-img-tag">Heirloom Bouquets</div>
+          </div>
+          <div className="about-gallery-card">
+            <img
+              src="/images/resin_frame.jpg"
+              alt="Botanical resin floral casting"
+            />
+            <div className="about-img-tag">Botanical Resin Art</div>
           </div>
         </div>
 
