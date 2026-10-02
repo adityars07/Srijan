@@ -20,9 +20,8 @@ async function main() {
   await prisma.address.deleteMany();
   await prisma.user.deleteMany();
 
-  // 2. Seed Users
+  // 2. Seed Admin User
   const adminPasswordHash = await bcrypt.hash('ArtisanRakhi2026!', 10);
-  const customerPasswordHash = await bcrypt.hash('Customer2026!', 10);
 
   const adminUser = await prisma.user.create({
     data: {
@@ -34,28 +33,7 @@ async function main() {
     },
   });
 
-  const customerUser = await prisma.user.create({
-    data: {
-      email: 'demo@srijan.com',
-      name: 'Aditya Kumar',
-      phone: '+91 9876543210',
-      passwordHash: customerPasswordHash,
-      role: 'CUSTOMER',
-      addresses: {
-        create: {
-          street: 'Sector 42, Golf Course Road',
-          apartment: 'Villa 14B',
-          city: 'Gurugram',
-          state: 'Haryana',
-          postalCode: '122002',
-          country: 'India',
-          isDefault: true,
-        },
-      },
-    },
-  });
-
-  console.log(`👤 Created Users: Admin (${adminUser.email}), Customer (${customerUser.email})`);
+  console.log(`👤 Created Admin User: ${adminUser.email}`);
 
   // 3. Seed Products
   const productsData = [
@@ -568,31 +546,6 @@ async function main() {
         },
       },
     });
-
-    // Add sample verified reviews for products
-    if (p.slug === 'crochet-artisan-floral-bouquet') {
-      await prisma.review.create({
-        data: {
-          productId: createdProduct.id,
-          userId: customerUser.id,
-          authorName: 'Sneha Patel',
-          authorLocation: 'Bangalore, India',
-          rating: 5,
-          comment: 'I am totally in love with the crochet creations! The sunflower bouquet is shaped with such perfection. It adds so much lasting warmth to my living room. Worth every single rupee.',
-        },
-      });
-    } else if (p.slug === 'crochet-sunflower-tote-crossbody') {
-      await prisma.review.create({
-        data: {
-          productId: createdProduct.id,
-          userId: customerUser.id,
-          authorName: 'Aditya Kumar',
-          authorLocation: 'Delhi, India',
-          rating: 5,
-          comment: 'Bought the artisan sunflower granny square tote bag. The stitch tension, inner lining, and sturdy straps are top notch! Truly genuine handcrafted heirloom work.',
-        },
-      });
-    }
   }
 
   console.log(`📦 Seeded ${productsData.length} Products with full attributes, colors, sizes, and images.`);
@@ -628,74 +581,6 @@ async function main() {
 
   console.log('🎟️ Seeded Active Discount Coupons: SRIJAN10, WELCOME15, RAKHI500');
 
-  // 5. Seed a Sample Order for the demo customer
-  const firstProduct = await prisma.product.findFirst({
-    where: { slug: 'crochet-artisan-floral-bouquet' },
-  });
-
-  if (firstProduct) {
-    await prisma.order.create({
-      data: {
-        orderNumber: 'SRJ-2026-1001',
-        userId: customerUser.id,
-        guestName: customerUser.name,
-        guestEmail: customerUser.email,
-        guestPhone: customerUser.phone,
-        subtotal: 1850,
-        discountAmount: 185,
-        shippingCost: 0,
-        totalAmount: 1665,
-        currency: 'INR',
-        status: 'IN_CRAFTING',
-        paymentMethod: 'UPI',
-        paymentStatus: 'PAID',
-        shippingAddress: JSON.stringify({
-          firstName: 'Aditya',
-          lastName: 'Kumar',
-          street: 'Sector 42, Golf Course Road',
-          apartment: 'Villa 14B',
-          city: 'Gurugram',
-          state: 'Haryana',
-          postalCode: '122002',
-          country: 'India',
-          phone: '+91 9876543210',
-        }),
-        trackingNumber: 'DELHIVERY-984210',
-        notes: 'Handcrafted with personalized note for anniversary gift.',
-        items: {
-          create: {
-            productId: firstProduct.id,
-            productName: firstProduct.name,
-            productImage: '/images/crochet-artisan-floral-bouquet.jpg',
-            colorName: 'Sunflower Sunshine & Daisy',
-            sizeName: 'Deluxe Bouquet (7 Stems)',
-            unitPrice: 1850,
-            quantity: 1,
-            totalPrice: 1850,
-          },
-        },
-      },
-    });
-    console.log('🛍️ Seeded Sample Live Order #SRJ-2026-1001 for tracking');
-  }
-
-  // 6. Seed a Sample Custom Commission Request
-  await prisma.customCommission.create({
-    data: {
-      name: 'Pooja Verma',
-      email: 'pooja.verma@example.com',
-      phone: '+91 9811223344',
-      category: 'Resin Art',
-      occasion: 'Wedding Anniversary',
-      budgetRange: '₹5,000 - ₹8,000',
-      description: 'Preservation of wedding varmala roses with 24K gold foil and custom date engraving (24th Nov 2025).',
-      status: 'QUOTE_SENT',
-      quoteAmountINR: 6500,
-      adminNotes: 'Discussed flower drying timeline with client. Client approved resin layout mockup.',
-    },
-  });
-
-  console.log('🎨 Seeded Sample Bespoke Custom Request');
   console.log('✨ Srijan Database Seeding Complete!');
 }
 
