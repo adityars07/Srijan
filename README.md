@@ -1,4 +1,4 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 # 🧶 Srijan — Handcrafted Elegance by Rakhi
 
@@ -403,4 +403,3 @@ Built for **Rakhi Karn** — Artisan creator behind Srijan Handmade
 ## 📄 License
 
 This project is private and proprietary. All product images and brand assets are owned by Srijan Handmade.
-]]>
