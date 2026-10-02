@@ -8,7 +8,7 @@ interface AboutViewProps {
 
 export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreClick }) => {
   return (
-    <div style={{ padding: '40px 0 90px' }}>
+    <div className="about-page-wrap">
       <div className="container">
         {/* Editorial Heading */}
         <div className="about-editorial-header">
@@ -29,23 +29,23 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
             <img
               src="/images/crochet-potted-sunflowers.jpg"
               alt="Handcrafted crochet potted sunflowers"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
+            <div className="about-img-tag">Crochet Botanicals</div>
           </div>
           <div className="about-sub-imgs-col">
             <div className="about-sub-img-wrap">
               <img
                 src="/images/crochet_bouquet.jpg"
                 alt="Artisanal crochet floral bouquet"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
+              <div className="about-img-tag">Heirloom Bouquets</div>
             </div>
             <div className="about-sub-img-wrap">
               <img
                 src="/images/resin_frame.jpg"
                 alt="Botanical resin floral casting"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
+              <div className="about-img-tag">Botanical Resin Art</div>
             </div>
           </div>
         </div>
@@ -66,33 +66,41 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
         {/* 4 Pillars Card Grid */}
         <div className="about-pillars-grid">
           <div className="about-pillar-card">
-            <Sparkles size={28} color="#C48B71" style={{ marginBottom: '16px' }} />
-            <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '10px' }}>Authentic Craftsmanship</h4>
-            <p style={{ fontSize: '0.9rem', color: '#746D66', lineHeight: 1.6 }}>
+            <div className="about-pillar-icon-wrap">
+              <Sparkles size={24} color="#C48B71" />
+            </div>
+            <h4 className="about-pillar-title">Authentic Craftsmanship</h4>
+            <p className="about-pillar-desc">
               Every creation is meticulously looped, stitched, or poured by hand with no factory shortcuts.
             </p>
           </div>
 
           <div className="about-pillar-card">
-            <Leaf size={28} color="#C48B71" style={{ marginBottom: '16px' }} />
-            <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '10px' }}>Pure Materials</h4>
-            <p style={{ fontSize: '0.9rem', color: '#746D66', lineHeight: 1.6 }}>
+            <div className="about-pillar-icon-wrap">
+              <Leaf size={24} color="#C48B71" />
+            </div>
+            <h4 className="about-pillar-title">Pure Materials</h4>
+            <p className="about-pillar-desc">
               We prioritize combed milk cotton yarns, natural wood accents, non-toxic archival resin, and 100% plastic-free packaging.
             </p>
           </div>
 
           <div className="about-pillar-card">
-            <Feather size={28} color="#C48B71" style={{ marginBottom: '16px' }} />
-            <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '10px' }}>Unique Designs</h4>
-            <p style={{ fontSize: '0.9rem', color: '#746D66', lineHeight: 1.6 }}>
+            <div className="about-pillar-icon-wrap">
+              <Feather size={24} color="#C48B71" />
+            </div>
+            <h4 className="about-pillar-title">Unique Designs</h4>
+            <p className="about-pillar-desc">
               Each piece is one-of-a-kind or custom crafted with personalized names, dates, and color harmonies.
             </p>
           </div>
 
           <div className="about-pillar-card">
-            <HeartHandshake size={28} color="#C48B71" style={{ marginBottom: '16px' }} />
-            <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '10px' }}>Direct Artisan Connection</h4>
-            <p style={{ fontSize: '0.9rem', color: '#746D66', lineHeight: 1.6 }}>
+            <div className="about-pillar-icon-wrap">
+              <HeartHandshake size={24} color="#C48B71" />
+            </div>
+            <h4 className="about-pillar-title">Direct Artisan Connection</h4>
+            <p className="about-pillar-desc">
               You communicate directly with the maker, ensuring your bespoke vision is brought to life with love.
             </p>
           </div>
@@ -100,24 +108,22 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
 
         {/* CTA banner */}
         <div className="about-cta-banner">
-          <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem', marginBottom: '14px' }}>
+          <h3 className="about-cta-title">
             Looking for a Bespoke Custom Piece?
           </h3>
-          <p style={{ color: '#EDE7DF', fontSize: '1.05rem', maxWidth: '600px', margin: '0 auto 28px' }}>
+          <p className="about-cta-text">
             Whether it's an anniversary keepsake platter, wedding bouquet preserve, or custom home entrance plaque, we'd love to craft it for you.
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <div className="about-cta-buttons">
             <button
-              className="see-all-link"
-              style={{ background: 'white', color: '#2B2523' }}
+              className="about-cta-primary-btn"
               onClick={onContactClick}
             >
               <span>Contact Rakhi</span>
               <ArrowUpRight size={16} />
             </button>
             <button
-              className="see-all-link"
-              style={{ background: 'transparent', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}
+              className="about-cta-secondary-btn"
               onClick={onExploreClick}
             >
               <span>Browse Catalog</span>
