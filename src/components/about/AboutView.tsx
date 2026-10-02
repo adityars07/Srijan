@@ -27,8 +27,8 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
         <div className="about-visual-grid">
           <div className="about-main-img-wrap">
             <img
-              src="/images/potter_hands.jpg"
-              alt="Artisan shaping clay"
+              src="/images/crochet-potted-sunflowers.jpg"
+              alt="Handcrafted crochet potted sunflowers"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
@@ -36,14 +36,14 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
             <div className="about-sub-img-wrap">
               <img
                 src="/images/crochet_bouquet.jpg"
-                alt="Crochet craftsmanship"
+                alt="Artisanal crochet floral bouquet"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
             <div className="about-sub-img-wrap">
               <img
                 src="/images/resin_frame.jpg"
-                alt="Resin floral casting"
+                alt="Botanical resin floral casting"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
@@ -56,10 +56,10 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
             The Art of Handcrafted Excellence
           </h2>
           <p>
-            In a world dominated by mass production and fleeting trends, Srijan stands for permanence, warmth, and individuality. Each piece begins with raw, unhurried materials: natural stoneware clay dug from local riverbeds, handpicked Indian botanical flora preserved at peak bloom, soft milk cotton yarn, and precision-poured crystal resin.
+            In a world dominated by mass production and fleeting trends, Srijan stands for permanence, warmth, and individuality. Each piece begins with raw, unhurried materials: soft combed milk cotton yarn, handpicked botanical flora preserved at peak bloom, natural wooden beads, and crystal-clear archival resin.
           </p>
           <p>
-            Rakhi brings together diverse artistic disciplines under one roof: ancient Gujarat Lipan mud and mirror heritage, Japanese botanical crochet sculpting, and contemporary fluid resin casting. No two pieces are ever completely identical, preserving the subtle fingerprint and soulful signature of the human hand.
+            Rakhi brings together diverse textile and preservation disciplines under one roof: botanical crochet sculpting, intricate mandala fiber knotting, and contemporary floral resin casting. No two pieces are ever completely identical, preserving the subtle fingerprint and soulful signature of the human hand.
           </p>
         </div>
 
@@ -69,15 +69,15 @@ export const AboutView: React.FC<AboutViewProps> = ({ onContactClick, onExploreC
             <Sparkles size={28} color="#C48B71" style={{ marginBottom: '16px' }} />
             <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '10px' }}>Authentic Craftsmanship</h4>
             <p style={{ fontSize: '0.9rem', color: '#746D66', lineHeight: 1.6 }}>
-              Every creation is meticulously molded, stitched, or poured by hand with no factory shortcuts.
+              Every creation is meticulously looped, stitched, or poured by hand with no factory shortcuts.
             </p>
           </div>
 
           <div className="about-pillar-card">
             <Leaf size={28} color="#C48B71" style={{ marginBottom: '16px' }} />
-            <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '10px' }}>Sustainable Materials</h4>
+            <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '10px' }}>Pure Materials</h4>
             <p style={{ fontSize: '0.9rem', color: '#746D66', lineHeight: 1.6 }}>
-              We prioritize organic clays, pure cotton yarns, non-toxic food-safe glazes, and 100% plastic-free packaging.
+              We prioritize combed milk cotton yarns, natural wood accents, non-toxic archival resin, and 100% plastic-free packaging.
             </p>
           </div>
 

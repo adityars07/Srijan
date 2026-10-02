@@ -196,10 +196,11 @@ export const CustomCommissionModal: React.FC<CustomCommissionModalProps> = ({ is
                       background: '#FBF9F5',
                     }}
                   >
-                    <option value="Resin Art">Resin Art & Keepsakes</option>
-                    <option value="Name Plates">Clay Entrance Nameplates</option>
-                    <option value="Crochet">Crochet Bouquets & Accents</option>
-                    <option value="Home Decor">Sculptural Decor / Lipan</option>
+                    <option value="Crochet Bouquets">Everlasting Crochet Bouquets</option>
+                    <option value="Crochet Accessories">Crochet Bags & Potli Pouches</option>
+                    <option value="Amigurumi Charms">Amigurumi Companions & Keychains</option>
+                    <option value="Fiber Wall Art">Mandala Dreamcatchers & Wall Decor</option>
+                    <option value="Resin Art">Botanical Resin Keepsakes</option>
                   </select>
                 </div>
 
