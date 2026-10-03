@@ -192,3 +192,17 @@ model ContactMessage {
   replyStatus String   @default("PENDING") // PENDING, REPLIED
   createdAt   DateTime @default(now())
 }
+
+model OtpVerification {
+  id        String   @id @default(uuid())
+  email     String
+  otpHash   String
+  purpose   String   @default("CUSTOMER_LOGIN")
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email, purpose])
+}
+
