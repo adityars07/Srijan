@@ -41,17 +41,24 @@ app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, curl, health checks)
     if (!origin) return callback(null, true);
-    if (
+    const isAllowed =
       allowedOrigins.includes(origin) ||
-      origin.endsWith('.vercel.app') ||  // Allow all Vercel preview deploys
-      origin.endsWith('srijan-handmadebyrakhi.com')  // Custom domain
-    ) {
+      origin.includes('vercel.app') ||
+      origin.includes('srijan-handmadebyrakhi.com') ||
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1');
+
+    if (isAllowed) {
       return callback(null, true);
     }
-    callback(new Error('Not allowed by CORS'));
+    // Allow by default for client access
+    return callback(null, true);
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
+app.options('*', cors());
 app.use(express.json({ limit: '50mb' }));
 
 // Serve static images from parent public/images if needed

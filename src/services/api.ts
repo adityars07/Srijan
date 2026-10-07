@@ -2,7 +2,7 @@
 // In production (Vercel), VITE_API_URL points to the Render backend (e.g. https://srijan-api.onrender.com/api)
 // In local dev, the Vite proxy handles /api → localhost:5000
 
-const rawApiUrl = import.meta.env.VITE_API_URL || '/api';
+const rawApiUrl = (import.meta.env.VITE_API_URL || '/api').trim().replace(/[\r\n\t]/g, '');
 const API_BASE = rawApiUrl.replace(/\/+$/, '');
 
 function getAuthHeader(): Record<string, string> {
@@ -17,10 +17,20 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     ...(options.headers as Record<string, string> || {}),
   };
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers,
+    });
+  } catch (networkErr: any) {
+    if (networkErr?.name === 'TypeError' || networkErr?.message?.includes('fetch')) {
+      throw new Error(
+        'Unable to reach Srijan server. The service may be waking up or there is a network issue. Please try again in a few moments.'
+      );
+    }
+    throw networkErr;
+  }
 
   const data = await response.json().catch(() => ({}));
 
