@@ -44,8 +44,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 1850,
       priceUSD: 23,
-      originalPriceINR: 2200,
-      originalPriceUSD: 28,
+
       rating: 5.0,
       reviewCount: 42,
       description: 'An everlasting artisanal bouquet meticulously hand-crocheted with premium milk cotton yarn. Features vibrant blooming sunflowers, white daisies, lavender sprigs, rose buds, and eucalyptus foliage, elegantly wrapped in artisan kraft paper and tied with a satin ribbon.',
@@ -75,8 +74,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 2450,
       priceUSD: 30,
-      originalPriceINR: 2850,
-      originalPriceUSD: 35,
+
       rating: 4.9,
       reviewCount: 36,
       description: 'Bohemian heirloom statement bag handcrafted from individual crocheted sunflower granny squares with a rich chocolate and oatmeal frame. Features sturdy braided handles, an adjustable crossbody shoulder strap, and an accompanying mini zipper coin charm.',
@@ -106,8 +104,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 1650,
       priceUSD: 21,
-      originalPriceINR: 1950,
-      originalPriceUSD: 25,
+
       rating: 5.0,
       reviewCount: 28,
       description: 'A mesmerizing circular wall art dreamcatcher inspired by sacred geometry. Hand-knotted with delicate lilac, lavender, and periwinkle yarns stretched across an embroidered hoop, adorned with hand-crocheted feathers, hanging leaves, and lustrous pearl beads.',
@@ -137,8 +134,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 1750,
       priceUSD: 22,
-      originalPriceINR: 2100,
-      originalPriceUSD: 26,
+
       rating: 4.9,
       reviewCount: 24,
       description: 'Rich jewel-toned wall tapestry dreamcatcher crafted with concentric mandala loops in deep forest emerald, jade, and mint greens. Accented with natural wooden beads and hand-crocheted trailing leaf pennants.',
@@ -168,8 +164,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 1200,
       priceUSD: 16,
-      originalPriceINR: 1450,
-      originalPriceUSD: 19,
+
       rating: 5.0,
       reviewCount: 39,
       description: 'Perpetual sunshine for your study table or bookshelf. Pair of lovingly hand-knitted miniature sunflower blooms emerging from realistic textured brown soil in soft terracotta-tone crochet pots with bendable wired green stems.',
@@ -198,8 +193,7 @@ async function main() {
       collection: 'Signature Srijan',
       priceINR: 950,
       priceUSD: 13,
-      originalPriceINR: 1200,
-      originalPriceUSD: 16,
+
       rating: 4.9,
       reviewCount: 31,
       description: 'A harmonious blend of cultural protection and botanical artistry. Features vibrant blue, turquoise, white, and black evil eye concentric centers blossoming into sculpted sunflower and daisy petals on sturdy display stems.',
@@ -228,8 +222,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 650,
       priceUSD: 9,
-      originalPriceINR: 800,
-      originalPriceUSD: 11,
+
       rating: 4.8,
       reviewCount: 27,
       description: 'Keep your spectacles and sunglasses scratch-free in style. Meticulously crocheted using thick cushion-stitch ribbing in soft lilac and ivory tones, fastened with a handcrafted engraved wooden toggle button and loop closure.',
@@ -259,8 +252,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 850,
       priceUSD: 11,
-      originalPriceINR: 1050,
-      originalPriceUSD: 14,
+
       rating: 5.0,
       reviewCount: 22,
       description: 'An elegant vintage-inspired drawstring bucket pouch in dual-tone violet and lilac. Features an intricate wave shell stitch pattern, reinforced circular base, and woven drawstring cords finished with dainty crochet flower beads.',
@@ -289,8 +281,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 550,
       priceUSD: 7,
-      originalPriceINR: 700,
-      originalPriceUSD: 9,
+
       rating: 4.9,
       reviewCount: 45,
       description: 'Treat your hair to ultimate gentle care. Set of 3 voluptuous ruffled scrunchies crocheted around strong, snag-free elastic bands in curated pastel hues: Cloud White, Petal Blush, and Warm Nude.',
@@ -319,8 +310,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 450,
       priceUSD: 6,
-      originalPriceINR: 550,
-      originalPriceUSD: 8,
+
       rating: 4.9,
       reviewCount: 33,
       description: 'An irresistible miniature woven basket overflowing with hand-stitched micro roses, daisies, and foliage. Fitted with a heavy-duty neodymium magnet on the back that clings firmly to refrigerators, magnet boards, or steel workstations.',
@@ -349,8 +339,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 490,
       priceUSD: 7,
-      originalPriceINR: 650,
-      originalPriceUSD: 9,
+
       rating: 4.8,
       reviewCount: 29,
       description: 'Set of two cheerful floral keychains featuring hand-knitted 3D daisies and tulips with dangling wooden beads and sturdy metallic lobster clasps. Easily attaches to car keys, backpacks, or tote handles.',
@@ -379,8 +368,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 390,
       priceUSD: 5,
-      originalPriceINR: 500,
-      originalPriceUSD: 7,
+
       rating: 4.7,
       reviewCount: 18,
       description: 'Delicate hand-looped pastel bows and floral accents designed to clip onto glasses chains, pouch zippers, headphone cases, or bag straps for an instant coquettish artisanal touch.',
@@ -409,8 +397,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 620,
       priceUSD: 8,
-      originalPriceINR: 750,
-      originalPriceUSD: 10,
+
       rating: 4.9,
       reviewCount: 34,
       description: 'Brighten every morning drive. Handcrafted double-sided blooming sunflower charm suspended by braided macrame cord with leafy foliage and a boho tassel tail. Ties effortlessly around any rearview car mirror or window frame.',
@@ -439,8 +426,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 1150,
       priceUSD: 15,
-      originalPriceINR: 1400,
-      originalPriceUSD: 18,
+
       rating: 5.0,
       reviewCount: 41,
       description: 'The beloved web-slinging hero reimagined in charming hand-crocheted amigurumi form! Crafted with vibrant red and royal blue wool, hand-embroidered black webbing, felt safety eyes, and posed limbs. Sits upright on any desk, car dashboard, or collector shelf.',
@@ -468,8 +454,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 690,
       priceUSD: 9,
-      originalPriceINR: 850,
-      originalPriceUSD: 11,
+
       rating: 5.0,
       reviewCount: 37,
       description: 'The galaxy’s most adorable child in chibi amigurumi format. Features wide sage green pointed ears, deep safety bead eyes, oversized cozy sand robe with ribbed collar, and an antique brass keychain ring.',
@@ -497,8 +482,7 @@ async function main() {
       collection: 'Boho Blooms',
       priceINR: 690,
       priceUSD: 9,
-      originalPriceINR: 850,
-      originalPriceUSD: 11,
+
       rating: 4.9,
       reviewCount: 30,
       description: 'Expressive hand-crocheted Stitch alien companion amigurumi with sky-blue ears, tufted head hair, signature turquoise nose, and a sturdy metal swivel clasp. An irresistible charm for bags, totes, and keys.',
