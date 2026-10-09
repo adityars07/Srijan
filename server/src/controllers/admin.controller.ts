@@ -12,7 +12,7 @@ export const getAdminMetrics = async (_req: Request, res: Response): Promise<voi
       recentOrders,
       recentRequests,
     ] = await Promise.all([
-      prisma.order.findMany({ select: { totalAmount: true, currency: true, status: true } }),
+      prisma.order.findMany({ select: { totalAmount: true, currency: true, status: true, paymentStatus: true } }),
       prisma.product.count(),
       prisma.product.findMany({
         where: { stockQuantity: { lte: 15 } },
@@ -35,22 +35,42 @@ export const getAdminMetrics = async (_req: Request, res: Response): Promise<voi
 
     let totalRevenueINR = 0;
     let totalRevenueUSD = 0;
+    let pendingRevenueINR = 0;
+    let pendingRevenueUSD = 0;
+    let paidOrdersCount = 0;
+
     const orderStatusCounts: Record<string, number> = {
       CONFIRMED: 0,
       IN_CRAFTING: 0,
       DISPATCHED: 0,
       DELIVERED: 0,
       CANCELLED: 0,
+      PENDING: 0,
     };
 
     orders.forEach((o) => {
-      if (o.currency === 'USD') {
-        totalRevenueUSD += o.totalAmount;
+      // ONLY include completed / verified paid orders in Gross Sales
+      const isPaid = o.paymentStatus === 'PAID';
+
+      if (isPaid) {
+        paidOrdersCount++;
+        if (o.currency === 'USD') {
+          totalRevenueUSD += o.totalAmount;
+        } else {
+          totalRevenueINR += o.totalAmount;
+        }
       } else {
-        totalRevenueINR += o.totalAmount;
+        if (o.currency === 'USD') {
+          pendingRevenueUSD += o.totalAmount;
+        } else {
+          pendingRevenueINR += o.totalAmount;
+        }
       }
+
       if (orderStatusCounts[o.status] !== undefined) {
         orderStatusCounts[o.status]++;
+      } else {
+        orderStatusCounts[o.status] = 1;
       }
     });
 
@@ -58,6 +78,9 @@ export const getAdminMetrics = async (_req: Request, res: Response): Promise<voi
       metrics: {
         totalRevenueINR,
         totalRevenueUSD,
+        pendingRevenueINR,
+        pendingRevenueUSD,
+        paidOrdersCount,
         totalOrders: orders.length,
         orderStatusCounts,
         totalProducts,

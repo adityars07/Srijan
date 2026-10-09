@@ -638,15 +638,20 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '32px' }}>
           <div style={{ background: '#FAF7F2', padding: '20px', borderRadius: '12px', border: '1px solid #EBE4DA' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', color: '#C48B71', marginBottom: '8px' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Gross Sales</span>
+              <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Gross Sales (Paid)</span>
               <DollarSign size={18} />
             </div>
             <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 700, color: '#2B2523' }}>
-              {formatPrice(metrics.totalRevenueINR ?? metrics.totalRevenue ?? 0)}
+              {formatPrice(metrics.totalRevenueINR ?? 0)}
             </div>
             <div style={{ fontSize: '0.76rem', color: '#746D66', marginTop: '4px' }}>
-              ${metrics.totalRevenueUSD ?? Math.round((metrics.totalRevenue || 0) / 83)} USD total revenue
+              ${metrics.totalRevenueUSD ?? 0} USD completed • {metrics.paidOrdersCount ?? 0} paid {metrics.paidOrdersCount === 1 ? 'order' : 'orders'}
             </div>
+            {(metrics.pendingRevenueINR ?? 0) > 0 && (
+              <div style={{ fontSize: '0.73rem', color: '#B86F52', marginTop: '4px', fontWeight: 500 }}>
+                ₹{metrics.pendingRevenueINR.toLocaleString()} awaiting payment ({metrics.totalOrders - (metrics.paidOrdersCount || 0)} pending)
+              </div>
+            )}
           </div>
 
           <div style={{ background: '#FAF7F2', padding: '20px', borderRadius: '12px', border: '1px solid #EBE4DA' }}>
@@ -658,7 +663,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
               {metrics.totalOrders || 0}
             </div>
             <div style={{ fontSize: '0.76rem', color: '#746D66', marginTop: '4px' }}>
-              {metrics.orderStatusCounts?.IN_CRAFTING ?? metrics.pendingOrders ?? 0} in active crafting
+              {metrics.paidOrdersCount ?? 0} paid • {metrics.orderStatusCounts?.IN_CRAFTING ?? 0} in crafting
             </div>
           </div>
 
@@ -748,8 +753,15 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                     <div style={{ fontWeight: 600, fontSize: '0.92rem', color: '#2B2523' }}>
                       {formatPrice(o.totalAmount)}
                     </div>
-                    <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '9999px', background: '#E8F5E9', color: '#2E7D32', fontWeight: 600 }}>
-                      {o.status}
+                    <span style={{
+                      fontSize: '0.72rem',
+                      padding: '2px 8px',
+                      borderRadius: '9999px',
+                      background: o.paymentStatus === 'PAID' ? '#E8F5E9' : '#FFF3E0',
+                      color: o.paymentStatus === 'PAID' ? '#2E7D32' : '#E65100',
+                      fontWeight: 600,
+                    }}>
+                      {o.paymentStatus === 'PAID' ? '✓ PAID' : '⏳ PENDING'}
                     </span>
                   </div>
                 </div>
@@ -823,24 +835,42 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                       {formatPrice(o.totalAmount)}
                     </td>
                     <td style={{ padding: '14px 16px' }}>
-                      <span
-                        style={{
-                          padding: '3px 10px',
-                          borderRadius: '9999px',
-                          fontSize: '0.74rem',
-                          fontWeight: 600,
-                          backgroundColor:
-                            o.status === 'DELIVERED' ? '#E8F5E9' :
-                            o.status === 'IN_CRAFTING' ? '#FFF8E1' :
-                            o.status === 'DISPATCHED' ? '#E3F2FD' : '#F4EFEA',
-                          color:
-                            o.status === 'DELIVERED' ? '#2E7D32' :
-                            o.status === 'IN_CRAFTING' ? '#F57F17' :
-                            o.status === 'DISPATCHED' ? '#1565C0' : '#4A4542',
-                        }}
-                      >
-                        {o.status}
-                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span
+                          style={{
+                            padding: '3px 10px',
+                            borderRadius: '9999px',
+                            fontSize: '0.74rem',
+                            fontWeight: 600,
+                            display: 'inline-block',
+                            width: 'fit-content',
+                            backgroundColor:
+                              o.status === 'DELIVERED' ? '#E8F5E9' :
+                              o.status === 'IN_CRAFTING' ? '#FFF8E1' :
+                              o.status === 'DISPATCHED' ? '#E3F2FD' : '#F4EFEA',
+                            color:
+                              o.status === 'DELIVERED' ? '#2E7D32' :
+                              o.status === 'IN_CRAFTING' ? '#F57F17' :
+                              o.status === 'DISPATCHED' ? '#1565C0' : '#4A4542',
+                          }}
+                        >
+                          {o.status}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: '0.70rem',
+                            padding: '2px 8px',
+                            borderRadius: '9999px',
+                            fontWeight: 600,
+                            display: 'inline-block',
+                            width: 'fit-content',
+                            backgroundColor: o.paymentStatus === 'PAID' ? '#E8F5E9' : '#FFF3E0',
+                            color: o.paymentStatus === 'PAID' ? '#2E7D32' : '#E65100',
+                          }}
+                        >
+                          {o.paymentStatus === 'PAID' ? '✓ PAID' : '⏳ UNPAID'}
+                        </span>
+                      </div>
                     </td>
                     <td style={{ padding: '14px 16px' }}>
                       <select
