@@ -82,6 +82,20 @@ const generateNewTrackingSku = (cat: string = 'Crochet'): string => {
   return `SRJ-${prefix}-${randomSerial}`;
 };
 
+const getDefaultCategoryMaterial = (cat: string): string => {
+  const map: Record<string, string> = {
+    'Crochet': '100% Premium Cotton Yarn & Soft Fiberfill',
+    'Resin Art': 'Epoxy Resin & Preserved Botanicals',
+    'Name Plates': 'Handcrafted Solid Wood & Acrylic',
+    'Ceramics & Mugs': 'Hand-thrown Glazed Stoneware',
+    'Plates & Bowls': 'Food-grade Artisanal Ceramic',
+    'Home Decor': 'Artisanal Mixed Media & Cotton',
+    'Lipan': 'Traditional Clay & Real Mirror Inlay',
+    'Keychain': 'Premium Cotton Yarn & Metal Keyring',
+  };
+  return map[cat] || 'Handcrafted Artisanal Materials';
+};
+
 export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackToStore }) => {
   const { user, isAdmin, login } = useAuth();
   const { formatPrice } = useCurrency();
@@ -118,6 +132,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
   const [newProdName, setNewProdName] = useState('');
   const [newProdCategory, setNewProdCategory] = useState('Crochet');
+  const [newProdMaterial, setNewProdMaterial] = useState(() => getDefaultCategoryMaterial('Crochet'));
   const [newProdPriceINR, setNewProdPriceINR] = useState('');
   const [newProdPriceUSD, setNewProdPriceUSD] = useState('');
   const [newProdSku, setNewProdSku] = useState(() => generateNewTrackingSku('Crochet'));
@@ -298,6 +313,21 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!newProdName.trim()) {
+      showToast('Please enter a Product Title.');
+      return;
+    }
+
+    if (!newProdPriceINR || parseFloat(newProdPriceINR) <= 0) {
+      showToast('Please enter a valid Price in INR.');
+      return;
+    }
+
+    if (!newProdPriceUSD || parseFloat(newProdPriceUSD) <= 0) {
+      showToast('Please enter a valid Price in USD.');
+      return;
+    }
+
     // Include URL input if artisan typed one and hasn't clicked Add URL yet
     let finalImages = [...newProdImages];
     if (newProdUrlInput.trim() && !finalImages.includes(newProdUrlInput.trim())) {
@@ -312,13 +342,14 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
     setIsSubmittingProduct(true);
     try {
       await api.products.create({
-        name: newProdName,
+        name: newProdName.trim(),
         category: newProdCategory,
         priceINR: parseFloat(newProdPriceINR),
         priceUSD: parseFloat(newProdPriceUSD),
-        sku: newProdSku,
-        description: newProdDescription,
-        stockQuantity: parseInt(newProdStock, 10),
+        sku: newProdSku.trim() || generateNewTrackingSku(newProdCategory),
+        material: newProdMaterial.trim() || getDefaultCategoryMaterial(newProdCategory),
+        description: newProdDescription.trim() || `Bespoke handcrafted ${newProdName.trim()} meticulously created by artisan Rakhi Karn.`,
+        stockQuantity: parseInt(newProdStock, 10) || 10,
         images: finalImages,
         colors: [{ name: 'Default Studio Color', hex: '#C48B71' }],
         sizes: ['Standard'],
@@ -330,6 +361,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
       setNewProdPriceINR('');
       setNewProdPriceUSD('');
       setNewProdSku(generateNewTrackingSku('Crochet'));
+      setNewProdMaterial(getDefaultCategoryMaterial('Crochet'));
       setNewProdImages([]);
       setNewProdUrlInput('');
       setNewProdStock('10');
@@ -1171,6 +1203,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                       const newCat = e.target.value;
                       setNewProdCategory(newCat);
                       setNewProdSku(generateNewTrackingSku(newCat));
+                      setNewProdMaterial(getDefaultCategoryMaterial(newCat));
                     }}
                     style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
                   >
@@ -1268,7 +1301,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                 </div>
               </div>
 
-              <div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Initial Stock</label>
                   <input
@@ -1276,6 +1309,16 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
                     required
                     value={newProdStock}
                     onChange={(e) => setNewProdStock(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Artisan Material</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 100% Cotton Yarn & Fiberfill"
+                    value={newProdMaterial}
+                    onChange={(e) => setNewProdMaterial(e.target.value)}
                     style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
                   />
                 </div>
@@ -1530,12 +1573,15 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onBackTo
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>Description</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>
+                  Description <span style={{ fontSize: '0.74rem', color: '#8C827A', fontWeight: 400 }}>(Optional &bull; default story added if left empty)</span>
+                </label>
                 <textarea
                   rows={3}
+                  placeholder="Share the handcrafted story, dimensions, or design details..."
                   value={newProdDescription}
                   onChange={(e) => setNewProdDescription(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA' }}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #EBE4DA', resize: 'vertical' }}
                 />
               </div>
 

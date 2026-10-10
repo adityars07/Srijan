@@ -157,10 +157,35 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
       sizes = [],
     } = req.body;
 
-    if (!name || !category || !priceINR || !priceUSD || !material || !sku) {
-      res.status(400).json({ error: 'Missing required product fields.' });
+    const missing: string[] = [];
+    if (!name || (typeof name === 'string' && !name.trim())) missing.push('Product Title');
+    if (!category || (typeof category === 'string' && !category.trim())) missing.push('Category');
+    if (priceINR === undefined || priceINR === null || priceINR === '') missing.push('Price (INR)');
+    if (priceUSD === undefined || priceUSD === null || priceUSD === '') missing.push('Price (USD)');
+    if (!sku || (typeof sku === 'string' && !sku.trim())) missing.push('SKU / Tracking ID');
+
+    if (missing.length > 0) {
+      res.status(400).json({ error: `Missing required field${missing.length > 1 ? 's' : ''}: ${missing.join(', ')}` });
       return;
     }
+
+    const defaultMaterial =
+      category === 'Crochet' ? '100% Premium Cotton Yarn & Soft Fiberfill' :
+      category === 'Resin Art' ? 'Epoxy Resin & Preserved Botanicals' :
+      category === 'Ceramics & Mugs' ? 'Hand-thrown Glazed Stoneware' :
+      category === 'Name Plates' ? 'Handcrafted Solid Wood & Acrylic' :
+      category === 'Plates & Bowls' ? 'Food-grade Artisanal Ceramic' :
+      category === 'Lipan' ? 'Traditional Clay & Real Mirror Inlay' :
+      category === 'Keychain' ? 'Cotton Yarn & Rust-proof Keyring' :
+      'Handcrafted Artisanal Materials';
+
+    const resolvedMaterial = material && typeof material === 'string' && material.trim()
+      ? material.trim()
+      : defaultMaterial;
+
+    const resolvedDescription = description && typeof description === 'string' && description.trim()
+      ? description.trim()
+      : `Bespoke handcrafted ${name} meticulously created by artisan Rakhi Karn.`;
 
     const slug = name
       .toLowerCase()
@@ -170,19 +195,19 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
     const created = await prisma.product.create({
       data: {
         slug,
-        name,
-        category,
+        name: name.trim(),
+        category: category.trim(),
         collection: collection || 'Signature Srijan',
         priceINR: parseFloat(priceINR),
         priceUSD: parseFloat(priceUSD),
         originalPriceINR: originalPriceINR ? parseFloat(originalPriceINR) : null,
         originalPriceUSD: originalPriceUSD ? parseFloat(originalPriceUSD) : null,
-        description: description || '',
+        description: resolvedDescription,
         storySnippet: storySnippet || null,
-        material,
-        stockQuantity: parseInt(stockQuantity, 10),
-        inStock: parseInt(stockQuantity, 10) > 0,
-        sku,
+        material: resolvedMaterial,
+        stockQuantity: parseInt(stockQuantity, 10) || 10,
+        inStock: (parseInt(stockQuantity, 10) || 10) > 0,
+        sku: sku.trim(),
         dimensions: dimensions || null,
         careInstructions: careInstructions || 'Gently dust with a soft cloth.',
         deliveryInfo: deliveryInfo || 'Crafted on order. Dispatched in 3-4 days.',
