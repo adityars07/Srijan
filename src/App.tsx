@@ -98,6 +98,8 @@ export function AppContent() {
   const handleSelectCategoryFromPills = (cat: string) => {
     if (cat === 'all') {
       setFilters((prev) => ({ ...prev, categories: [] }));
+      setCurrentView('shop');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       setFilters((prev) => ({ ...prev, categories: [cat] }));
       setCurrentView('shop');
